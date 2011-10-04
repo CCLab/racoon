@@ -1,0 +1,80 @@
+      <br /><a href="/user/<%= user %>" class="button" style="float: left; font-weight: bold; margin-left: 10px;">&lt;&lt; Powrót do profilu użytkownika</a>
+    
+      <form action="/search/" method="get" style="margin-left: 25px; float: left;">
+        <input type="text" name="what" placeholder="Co?" />
+        <input type="text" name="where" placeholder="Gdzie?" />
+        <input type="submit" value="Szukaj" />
+      </form>
+      
+      <h2 style="clear: both; margin-top: 0px; margin-left: 10px; color: #5b5b7b;">Rejestr zabytków: <u><%= collection %></u></h3>
+      <table id="data-table">
+        <thead>
+          <tr>
+            <td class="relic">
+              <!-- Approved --> 
+            </td>
+            <td class="relic">
+              <!-- Comments --> 
+            </td>
+            <td class="relic">
+              Miejscowość
+            </td>
+            <td class="relic">
+              Ulica
+            </td>
+            <td class="relic">
+              Województwo
+            </td>
+            <td class="relic">
+              Powiat
+            </td>
+            <td class="relic">
+              Gmina
+            </td>
+            <td class="relic">
+              Określenie obiektu
+            </td>
+            <td class="relic">
+              Określenie zespołu
+            </td>
+
+            <td class="relic">
+              Z kiedy?
+            </td>
+            <td class="relic">
+              W rejestrze
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <% for( var i in data ) { %>   
+          <tr id="<%= data[i]['_id'] %>"<% if( data[i]['approved'] ) { %>class="approved"<% } %>>
+            <td style="width: 25px"><input type="checkbox" <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
+            <td style="width: 30px"><img src="/img/comments.png" alt="K" /></td>
+            <td class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
+            <td class="editable" data-key="ulica"><%= data[i]['ulica'] %></td>
+            <td class="editable" data-key="wojewodztwo"><%= data[i]['wojewodztwo'] %></td>
+            <td class="editable" data-key="powiat"><%= data[i]['powiat'] %></td>
+            <td class="editable" data-key="gmina"><%= data[i]['gmina'] %></td> 
+            <td class="editable" data-key="okr_ob"><%= data[i]['okr_ob'] %></td>
+            <td class="editable" data-key="okr_zes"><%= data[i]['okr_zes'] %></td> 
+            <td class="editable" data-key="datowanie_ob"><%= data[i]['datowanie_ob'] %></td> 
+            <td class="editable" data-key="akt_nr_rej"><%= data[i]['akt_nr_rej'] %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+  <script src="/js/jquery-ui.js"></script>
+  <script src="/js/jquery.fixedtableheader-1-0-2.min.js"> </script>
+  <script src="/js/table.js"> </script>
+  <style type="text/css">
+    body {
+      width: 1140px;
+    }
+    #application {
+      width: 1120px;
+    }
+    #data-table {
+      width: 1110px;
+    }
+  </style>

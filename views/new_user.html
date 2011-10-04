@@ -1,0 +1,7 @@
+<h1><%= title %></h1>
+<p style="color: #8b8b8b; width: 500px;"><% if( error === 'login_taken' ) { %>Identyfikator zajęty - spróbuj inny<% } else { %>Podaj identyfikator, którego chciałbyś używać w czyściwie.<% } %></p>
+<form action="/register/" method="post" id="register-form">
+  <input type="text" name="user" placeholder="identyfikator" /><br />
+  <input type="password" name="pass" placeholder="hasło" /><br /><br />
+  <input type="submit" value="Załóż konto" />
+</form>

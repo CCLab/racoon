@@ -1,0 +1,9 @@
+<h1><%= title %></h1>
+<p style="color: #8b8b8b; width: 500px;">Musisz się zalogować, żeby rozpocząć edytowanie danych.</p>
+<form action="/login/" method="post">
+  <input type="text" name="user" placeholder="identyfikator" />
+  <input type="password" name="pass" placeholder="hasło" /><br /><br />
+  <input type="submit" value="Zaloguj" class="button" style="background-color: #f3f3f3" />
+
+<a href="/new_user/" class="button">Załóż nowe konto</a>
+</form>

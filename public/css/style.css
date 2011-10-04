@@ -1,0 +1,88 @@
+body {
+  background-color: #8B8B8B;
+  font-family: Arial,sans-serif;
+  font-size: 11px;
+  cursor: default;
+  width: 960px;
+  margin: 0 auto;
+  color: #1f1f1f;
+}
+
+#application {
+    overflow: visible;
+    width: 950px;
+    margin: 0 auto;
+    margin-top: 10px;
+    padding: 5px;
+    position: relative;
+    background-color: white;
+    display: block;
+    opacity: 1;
+}
+
+#panel {
+    padding: 5px;
+    clear: both;
+    background-color: #E3E3E3;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+}
+
+a {
+  color: #00B7FF;
+}
+
+table {
+    font-size: 1em;
+    border-style: solid;
+    border-width: 2px;
+    border-top-width: 0;
+    border-spacing: 2px;
+    border-color: gray;
+    width: 1120px;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+thead > tr, #fixedtableheader0 > tbody > tr  {
+    background: black;
+    color: white;
+}
+
+tr {
+    border-right: 2px solid #5B5B5B;
+    border-left: 2px solid #5B5B5B;
+}
+
+td {
+    border-right: 1px solid #8B8B8B;
+    padding: 5px;
+    border-collapse: collapse;
+}
+
+tbody > tr:hover {
+    background: #98D39F;
+}
+
+.even {
+    background-color: #EEE;
+}
+
+input {
+  border-radius: 3px;
+  border: 1px solid #00b7ff;
+}
+
+input[type="submit"]:hover {
+  cursor: pointer;
+  color: #007bff !important;
+}
+
+.unapproved {
+  color: #1f1f1f;
+}
+.approved {
+  color: #fff;
+}

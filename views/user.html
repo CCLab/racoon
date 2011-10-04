@@ -1,0 +1,80 @@
+<h1><%= user %></h1>
+<hr />
+
+<!--  L E F T   P A N E L  -->
+<div style="width: 500px; float: left;">
+  <h2>Z jakimi danymi się zmierzysz?</h2>
+  <h3>Wyszukaj interesujących cię danych</h3>
+  <form action="/search/" method="get">
+    <input type="text" name="what" placeholder="Co?" />
+    <input type="text" name="where" placeholder="Gdzie?" />
+    <input type="submit" value="Szukaj" />
+  </form>
+  <h3>Przejrzyj zabytki w wybranym powiecie</h3>
+  <table style="width: 480px; border: 0px;">
+  <% for( var i in meta ) { %>
+    <tr>
+        <td><a id="<%= meta[i]['_id'] %>" class="button voivodship">Województwo <%= meta[i]['name'] %></a></td>
+        <td><span style="margin-left: 10px;">Ilość zabytków: <%= meta[i]['count'] %></span></td>
+        <td><span style="margin-left: 10px;">Ilość poprawionych: <%= meta[i]['edited'] %></span></td>
+    </tr>
+
+    <% for( var j in meta[i]['powiats'] ) { %>
+      <tr style="margin-bottom: 10px;" class="poviats <%= meta[i]['_id'] %>">
+        <td style="padding-left: 20px;"><a href="/search/<%= meta[i]['powiats'][j]['name'] %>" class="button">
+          Powiat <%= meta[i]['powiats'][j]['name'] %> <b>&gt;&gt;</b>
+        </a></td>
+        <td><span style="margin-left: 10px;">Ilość zabytków: <%= meta[i]['powiats'][j]['count'] %></span></td>
+        <td><span style="margin-left: 10px;">Ilość poprawionych: <%= meta[i]['powiats'][j]['edited'] %></span></td>
+      </tr>
+    
+    <% } %>
+  <% } %>
+  </table>
+
+</div>
+
+<!--  R I G T H   P A N E L  -->
+<div style="float: right; width: 400px;">
+<% if( rows_count === 0 ) { %>
+  <h2>Jeszcze nie ma twoich edycji - czas zacząć!!</h2>
+<% } else { %>
+  <h2>Dotychczas poprawiłeś <span style="text-decoration: underline;"><%= rows_count %></span> wierszy.</h2> 
+  <h3>Ostatnio poprawione to:</h2>
+  <ul id="approved_rows">
+    <% var limit = rows_list.length < 10 ? rows_list.length : 10; for( var i = 1; i <= limit; ++i ) { %>
+      <li><%= rows_list[rows_list.length-i] %></li>
+    <% } %>
+  </ul>
+<% } %>
+
+<hr />
+
+<% if( comments_count === 0 ) { %>
+  <h2>Nic nie zostało przez ciebie skomentowane...</h2> 
+<% } else { %>
+  <h2>Twoje komentarze:</h2> 
+  <ul>
+    <% for( var i in comments_list ) { %>
+    <li><%= comments_list[i] %></li>
+    <% } %>
+  </ul>
+<% } %>
+</div>
+
+<script type="text/javascript">
+  $('.poviats').hide();
+
+  $('.voivodship').click( function () {
+    var id = $(this).attr('id');
+    $('.'+id).toggle();
+  });
+</script>
+<style type="text/css">
+  tr:hover {
+    background-color: #eee !important;
+  }
+  .button {
+    background-color: #e3e3e3;
+  }
+</style>

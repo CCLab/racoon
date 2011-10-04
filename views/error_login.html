@@ -1,0 +1,9 @@
+<h1><%= title %></h1>
+<p style="font-size: 16px; font-weight: bold; color: #ab5b5b; width: 500px;"><% if( error === 'user' ) { %>Błędny login<% } else { %>Błędne hasło<% } %></p>
+<form action="/login/" method="post">
+  <input type="text" name="user" placeholder="identyfikator" />
+  <input type="password" name="pass" placeholder="hasło" /><br /><br />
+  <input type="submit" value="Zaloguj" class="button" style="background-color: #f3f3f3" />
+
+<a href="/new_user/" class="button">Załóż nowe konto</a>
+</form>

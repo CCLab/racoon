@@ -1,0 +1,41 @@
+h1 {
+  margin: 10px 0px; 
+  font-size: 34px;
+}
+
+.button {
+  padding: 3px 5px;
+  border-radius: 3px;
+  border: 1px solid #00b7ff;
+  color: #5b5b5b;
+  text-decoration: none;
+}
+
+.button:hover {
+  cursor: pointer;
+  background-color: #00b7ff;
+  color: #fff;
+}
+
+ul {
+  list-style-type: none;
+  margin-left: -40px;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+.poviats {
+  margin-top: 10px;
+  margin-left: -15px;
+}
+
+#register-form > input {
+  padding: 3px;
+  margin-bottom: 3px;
+}
+
+img:hover {
+  cursor: pointer;
+}
