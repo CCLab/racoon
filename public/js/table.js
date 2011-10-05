@@ -19,7 +19,7 @@
     }
 
     function setClickable(){
-        $('.editable').unbind( 'dblclick' )
+        $('.editable')
             .dblclick( function( event ) {
                 addEditEvent( event, $(this));
             });
@@ -53,13 +53,11 @@
         // detect esc cancel
         $(document).keyup( function( event ){
             if( event.keyCode === 27 ) {
-                alert('Esc');
-//              TdCell.empty()
-//                  .html( value )
-//                  .unbind('dblclick')
-//                  .dblclick( function ( ev ) {
-//                        addEditEvent( ev, TdCell);
-//                  });
+              TdCell.empty()
+                  .html( value )
+                  .dblclick( function ( ev ) {
+                        addEditEvent( ev, TdCell);
+                  });
             }
 
         });
@@ -84,13 +82,13 @@
 
         TdCell.empty();
         TdCell.html( value )
-        TdCell.unbind('dblclick').dblclick( function( event ){
+        TdCell.dblclick( function( event ){
             addEditEvent( event, TdCell);
         });
         $(document).unbind();
     }
 
-    $('img').unbind().hover(
+    $('img').hover(
         function () {
             $(this).attr('src', '/img/comments_over.png' );
         },
@@ -108,7 +106,7 @@
             });
     });
 
-    $('input[type="checkbox"]').unbind().click( function () {
+    $('input[type="checkbox"]').click( function () {
         var tr = $(this).parent().parent();
         if( tr.hasClass('approved') ) {
             tr.removeClass('approved');
