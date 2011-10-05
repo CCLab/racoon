@@ -21,7 +21,7 @@ body {
 }
 
 #panel {
-    padding: 5px;
+    padding: 5px 10px;
     clear: both;
     background-color: #E3E3E3;
     border-radius: 5px;

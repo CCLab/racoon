@@ -33,7 +33,7 @@ app.configure('production', function(){
 app.get( '/', function ( req, res ) {
   req.session.username = '';
   res.render( 'index.html', {
-    title: 'Witaj na dano-czyścidle'
+    title: 'Racoon wypierze twoje dane!'
   });
 });
 
