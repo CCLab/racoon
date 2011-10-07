@@ -39,3 +39,26 @@ li {
 img:hover {
   cursor: pointer;
 }
+
+#comments-panel {
+  width: 250px; 
+  position: fixed; 
+  top: 10px; 
+  left: -2px;
+  padding: 5px;
+  border-radius: 0px 5px 5px 0px;
+  border: 2px solid #5b5b5b;
+  background-color: #e5e5e5;
+}
+
+.comment-button {
+  margin-top: 10px; 
+  margin-left: 5px;
+  float: right; 
+  width: 50px; 
+  text-align: center;
+}
+
+.right {
+  float: right;
+}

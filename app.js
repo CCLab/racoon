@@ -5,6 +5,7 @@ require.paths.push('/usr/local/lib/node_modules');
 var express   = require('express');
 var Mongolian = require('mongolian');
 var url       = require('url');
+var _         = require('underscore');
 var app       = module.exports = express.createServer();
 
 // Configuration
@@ -161,14 +162,32 @@ app.get( '/user/:name', function ( req, res ) {
             });
 
             db_meta.find({}).toArray( function ( err, meta_data ) {
-                res.render( 'user.html', {
-                    title: 'Strona użytkownika: ' + user,
-                    user: user,
-                    rows_count: !!obj_list.length ? list.length : 0,
-                    rows_list: !!obj_list.length ? list : [],
-                    comments_count: 0,
-                    comments_list: [],
-                    meta: meta_data
+
+                db_cols.find({ 'comments.user': user }).toArray( function ( err, comments_list ) {
+                    comments_list = _.flatten( comments_list.map( function ( e ) {
+                        var comments = e['comments'].map( function ( c ) {
+                            return {
+                                user: c['user'],
+                                text: c['text'],
+                                id: e['_id']+'',
+                                parish: e['gmina'],
+                                name: e['okr_ob']
+                            };
+                        }).filter( function ( e ) {
+                            return e['user'] === user;
+                        });
+                        return comments;
+                    })).reverse();
+
+                    res.render( 'user.html', {
+                        title: 'Strona użytkownika: ' + user,
+                        user: user,
+                        rows_count: !!obj_list.length ? list.length : 0,
+                        rows_list: !!obj_list.length ? list : [],
+                        comments_count: comments_list.length,
+                        comments_list: comments_list,
+                        meta: meta_data
+                    });
                 });
             });
         });
@@ -182,7 +201,7 @@ app.get( '/search/:poviat', function ( req, res ) {
 
     cols.find({ powiat: req.params.poviat }).toArray( function ( err, data ) {
         res.render( 'table.html', {
-            title: 'Czyściwo',
+            title: 'Racoon',
             data: data,
             user: req.session.username,
             collection: 'Powiat ' + req.params.poviat
@@ -212,7 +231,7 @@ app.get( '/search/', function ( req, res ) {
             }
 
             res.render( 'table.html', {
-                title: 'Czyściwo',
+                title: 'Racoon',
                 data: data,
                 user: req.session.username,
                 collection: collection
@@ -255,7 +274,7 @@ app.get( '/search/', function ( req, res ) {
             });
 
             res.render( 'table.html', {
-                title: 'Czyściwo',
+                title: 'Racoon',
                 data: data,
                 user: req.session.username,
                 collection: what + ' :: ' + where
@@ -341,21 +360,30 @@ app.post( '/update/', function(req, res) {
 
     var new_value = {};
     new_value[key] = val;
-    console.log( new_value );
+
     db_rows.update({ '_id': new ObjectId( row_id ) }, { '$set': new_value });
 
     res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
     res.end();
 });
 
-app.get( '/show_comments/', function(req, res) {
+app.get( '/get_comments/', function(req, res) {
     var ObjectId = require('mongolian').ObjectId;
     var db_rows  = (new Mongolian).db('victor_db').collection('victor_data');
-    var id = req.params.id;
 
-    var comments = db_rows.find( {'_id': new ObjectId(id)} );
-    res.writeHead( '200', {'Content-Type': 'application/json'} );
-    res.end();
+    var params = url.parse( req.url, true );
+    var id = params.query.id;
+
+    db_rows.find({ '_id': new ObjectId(id) }).toArray( function ( err, data ) {
+        data = _.flatten( data.map( function ( e ) {
+            return e['comments'];
+        })).filter( function ( e ) {
+            return !!e;
+        });
+
+        res.writeHead( '200', {'Content-Type': 'text/plain'} );
+        res.end( JSON.stringify({ id: id, data: data }));
+    });
 });
 
 app.post( '/comment/', function(req, res) {

@@ -97,14 +97,58 @@
         }
     ).click( function () {
        $.ajax({
-                url : '/comment/',
-                type : 'POST',
+                url : '/get_comments/',
+                type : 'GET',
                 data : {
-                    id: $(this).parent().parent().attr('id'),
-                    text: 'To jest zahardkodowny komentarz!!!!!'
-                }
+                    id: $(this).parent().parent().attr('id')
+                },
+                success: comments_panel
             });
     });
+
+    function comments_panel( received_data ) {
+        var received = JSON.parse( received_data );
+        console.log( received );
+        var html = [];
+
+        html.push( '<div id="comments-panel">' );
+        if( received['data'].length !== 0 ) {
+            received['data'].forEach( function ( e ) {
+                html.push( '<p style="color: #8b8b8b; font-size: 14px;">' + e['user'] + '</p>' );
+                html.push( '<p style="margin-left: 10px">' + e['text'] + '</p>' );
+            });
+        }
+        else {
+            html.push( '<h3>Brak komentarzy</h3>' );
+        }
+        html.push( '<hr />' );
+        html.push( '<h3>Twój komentarz</h3>' );
+        html.push( '<textarea id="'+ received['id'] +'" name="comment_text" style="height: 100px; width: 250px;">' );
+        html.push( '</textarea>' );
+        html.push( '<div id="add-comment" class="comment-button button">Dodaj</div>' );
+        html.push( '<div id="cancel-comment" class="comment-button button">Anuluj</div>' );
+        html.push( '</div>' );
+
+        $('body').append( html.join('') );
+        $('#add-comment').click( function () {
+            $.ajax({
+                url: '/comment/',
+                type: 'POST',
+                data: {
+                    id: $('textarea').attr('id'),
+                    text: $('textarea').val()
+                },
+                success: function () {
+                    $('#comments-panel').remove();
+                }
+            });
+        });
+
+        $('#cancel-comment').click( function () {
+            $('#comments-panel').remove();
+        });
+    }
+
 
     $('input[type="checkbox"]').click( function () {
         var tr = $(this).parent().parent();
