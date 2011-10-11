@@ -86,3 +86,12 @@ input[type="submit"]:hover {
 .approved {
   color: #fff;
 }
+
+#comments_list > li {
+  padding: 3px 5px;
+}
+
+#comments_list > li:hover {
+  cursor: pointer;
+  background-color: #eee;
+}

@@ -108,7 +108,6 @@
 
     function comments_panel( received_data ) {
         var received = JSON.parse( received_data );
-        console.log( received );
         var html = [];
 
         html.push( '<div id="comments-panel">' );

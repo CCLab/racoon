@@ -1,9 +1,12 @@
-var express   = require('express');
-var Mongolian = require('mongolian');
-var mongo     = new Mongolian('91.227.40.36:8000');
 var url       = require('url');
 var _         = require('underscore');
 
+var Mongolian = require('mongolian');
+var ObjectId  = require('mongolian').ObjectId;
+var mongo     = new Mongolian('91.227.40.36:8000');
+var db_rows   = mongo.db('racoon_db').collection('racoon_data');
+var meta_col  = mongo.db('racoon_db').collection('racoon_meta');
+var db_users  = mongo.db('racoon_db').collection('racoon_users');
 
 //////////  A P P R O V E D  //////////
 exports.approved = function ( req, res ) {
@@ -16,16 +19,18 @@ exports.approved = function ( req, res ) {
         res.end();
     }
 
-    var ObjectId = require('mongolian').ObjectId;
-    var db_rows  = mongo.db('racoon_db').collection('racoon_data');
-    var meta_col = mongo.db('racoon_db').collection('racoon_meta');
-    var db_users = mongo.db('racoon_db').collection('racoon_users');
-
     var row_id = req.body.id;
     var set    = JSON.parse( req.body.set );
 
-    db_users.findOne({ user: user }, function ( err, db_user ) {
+    db_users.findOne({ user: user }, update_user_account );
+    db_rows.findOne({'_id': new ObjectId( row_id ) }, mark_approved_object );
 
+    res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
+    res.end();
+
+    // callbacks
+    function update_user_account( err, db_user ) {
+        // set --> boolean for approved the row
         if( set ) {
             // update collection db
             db_rows.update({ '_id': new ObjectId( row_id ) },
@@ -45,14 +50,17 @@ exports.approved = function ( req, res ) {
         // update the user's list in db
         db_users.update({ 'user': user },
                         { '$set': {'rows': db_user['rows'] } });
-    });
+    }
 
-    db_rows.findOne({'_id': new ObjectId( row_id ) }, function ( err, row ) {
+    function mark_approved_object( err, row ) {
         // get clicked names
         var woj = row['wojewodztwo'];
         var pow = row['powiat'];
 
-        meta_col.findOne({ 'name': woj }, function ( err, woj_obj ) {
+        meta_col.findOne({ 'name': woj }, update_metadata );
+
+        // internal callback
+        function update_metadata( err, woj_obj ) {
             // increment edited fileds
             woj_obj['edited'] += set ? 1 : -1;
             woj_obj['powiats'] = woj_obj['powiats'].map( function ( e ) {
@@ -63,21 +71,16 @@ exports.approved = function ( req, res ) {
                                             });
             // update db
             meta_col.update({ 'name': woj }, woj_obj );
-        });
-    });
-
-    res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
-    res.end();
+        }
+    }
 };
 
 
 //////////  U P D A T E  //////////
 exports.update = function(req, res) {
-    var ObjectId = require('mongolian').ObjectId;
-    var key = req.body.key,
-        val = req.body.value,
-        row_id = req.body.id;
-    var db_rows = mongo.db('racoon_db').collection('racoon_data');
+    var key = req.body.key;
+    var val = req.body.value;
+    var row_id = req.body.id;
 
     var new_value = {};
     new_value[key] = val;
@@ -91,18 +94,16 @@ exports.update = function(req, res) {
 
 //////////  G E T   C O M M E N T S  //////////
 exports.get_comments = function(req, res) {
-    var ObjectId = require('mongolian').ObjectId;
-    var db_rows  = mongo.db('racoon_db').collection('racoon_data');
-
     var params = url.parse( req.url, true );
     var id = params.query.id;
 
     db_rows.find({ '_id': new ObjectId(id) }).toArray( function ( err, data ) {
         data = _.flatten( data.map( function ( e ) {
-            return e['comments'];
-        })).filter( function ( e ) {
-            return !!e;
-        });
+                                    return e['comments'];
+                        }))
+                        .filter( function ( e ) {
+                                    return !!e;
+                        });
 
         res.writeHead( '200', {'Content-Type': 'text/plain'} );
         res.end( JSON.stringify({ id: id, data: data }));
@@ -115,10 +116,6 @@ exports.comment = function(req, res) {
     var user = req.session.username;
     var row_id = req.body.id;
     var text = req.body.text;
-
-    var ObjectId = require('mongolian').ObjectId;
-    var db_rows  = mongo.db('racoon_db').collection('racoon_data');
-    var meta_col = mongo.db('racoon_db').collection('racoon_meta');
 
     var new_comment = { 'user': user, 'text': text };
 

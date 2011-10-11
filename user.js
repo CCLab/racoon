@@ -1,15 +1,18 @@
 var express   = require('express');
-var Mongolian = require('mongolian');
-var mongo     = new Mongolian('91.227.40.36:8000');
 var url       = require('url');
 var _         = require('underscore');
+
+var Mongolian = require('mongolian');
+var mongo     = new Mongolian('91.227.40.36:8000');
+var db_users  = mongo.db('racoon_db').collection('racoon_users');
+var db_cols   = mongo.db('racoon_db').collection('racoon_data');
+var db_meta   = mongo.db('racoon_db').collection('racoon_meta');
+
 
 //////////  L O G I N  //////////
 exports.login = function ( req, res ) {
     var user = req.body.user;
     var pass = req.body.pass;
-    var db_users = mongo.db('racoon_db').collection('racoon_users');
-
     // clear session user-login data
     delete req.session.username;
 
@@ -45,6 +48,7 @@ exports.login = function ( req, res ) {
     }
 };
 
+
 //////////  E R R O R   L O G I N  //////////
 exports.error_login = function ( req, res ) {
     // cache the error and clear the session data
@@ -57,6 +61,7 @@ exports.error_login = function ( req, res ) {
     });
 };
 
+
 //////////  N E W   U S E R  //////////
 exports.new_user = function ( req, res ) {
     res.render( 'new_user.html', {
@@ -65,16 +70,19 @@ exports.new_user = function ( req, res ) {
     });
 };
 
+
 //////////  R E G I S T E R  //////////
 exports.register = function ( req, res ) {
     // form data
     var user = req.body.user;
     var pass = req.body.pass;
 
-    // connect to db
-    var db_users = mongo.db('racoon_db').collection('racoon_users');
+    // check if the user doesn't exist before creating a new one
+    db_users.findOne({ user: user }, create_new_user );
 
-    db_users.findOne({ user: user }, function( err, db_user ) {
+
+    // callback
+    function create_new_user( err, db_user ) {
         // user already in db --> ask for a new login
         if( !!db_user ) {
             res.render( 'new_user.html', {
@@ -98,8 +106,9 @@ exports.register = function ( req, res ) {
             });
             res.end();
         }
-    });
+    };
 };
+
 
 //////////  P A G E  //////////
 exports.page = function ( req, res ) {
@@ -110,11 +119,7 @@ exports.page = function ( req, res ) {
         })
         res.end();
     }
-
     var user = req.params.name;
-    var db_users = mongo.db('racoon_db').collection('racoon_users');
-    var db_cols = mongo.db('racoon_db').collection('racoon_data');
-    var db_meta = mongo.db('racoon_db').collection('racoon_meta');
 
     db_users.findOne({ user: user }, function( err, db_user ) {
         // turn _id hashes to ObjectIds

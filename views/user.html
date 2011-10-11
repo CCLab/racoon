@@ -56,7 +56,7 @@
   <h2>Twoje komentarze:</h2> 
   <ul id="comments_list">
     <% for( var i in comments_list ) { %>
-    <li style="margin-bottom: 12px;">
+    <li data-id="<%= comments_list[i]['id'] %>" style="margin-bottom: 12px;">
       <span style="color: #888;"><%= comments_list[i]['parish'] %> :: <%= comments_list[i]['name'] %></span><br />
       <%= comments_list[i]['text'] %>
     </li>
@@ -78,6 +78,61 @@
       $(this).hide();
     }
   });
+
+  $('#comments_list > li').click( function () {
+    $.ajax({
+      url: '/get_comments/',
+      type: 'GET',
+      data: {
+        id: $(this).attr('data-id')
+      },
+      success: function ( received_data ) {
+        var received = JSON.parse( received_data );
+        var html = [];
+
+        html.push( '<div id="comments-panel">' );
+        if( received['data'].length !== 0 ) {
+            received['data'].forEach( function ( e ) {
+                html.push( '<p style="color: #8b8b8b; font-size: 14px;">' + e['user'] + '</p>' );
+                html.push( '<p style="margin-left: 10px">' + e['text'] + '</p>' );
+            });
+        }
+        else {
+            html.push( '<h3>Brak komentarzy</h3>' );
+        }
+        html.push( '<hr />' );
+        html.push( '<h3>Twój komentarz</h3>' );
+        html.push( '<textarea id="'+ received['id'] +'" name="comment_text" style="height: 100px; width: 250px;">' );
+        html.push( '</textarea>' );
+        html.push( '<div id="add-comment" class="comment-button button">Dodaj</div>' );
+        html.push( '<div id="cancel-comment" class="comment-button button">Anuluj</div>' );
+        html.push( '</div>' );
+
+        $('body').append( html.join('') );
+
+        var x = $(window).width() / 2 - 125; 
+        $('#comments-panel').css({ 'left': x, 'border-radius': '5px' });
+        $('#add-comment').click( function () {
+            $.ajax({
+                url: '/comment/',
+                type: 'POST',
+                data: {
+                    id: $('textarea').attr('id'),
+                    text: $('textarea').val()
+                },
+                success: function () {
+                    $('#comments-panel').remove();
+                }
+            });
+        });
+
+        $('#cancel-comment').click( function () {
+            $('#comments-panel').remove();
+        });
+      }
+    });
+  });
+
 </script>
 <style type="text/css">
   tr:hover {
