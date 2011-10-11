@@ -1,9 +1,9 @@
 /**
  * Module dependencies.
  */
-require.paths.push('/usr/local/lib/node_modules');
 var express   = require('express');
 var Mongolian = require('mongolian');
+var mongo     = new Mongolian('91.227.40.36:8000');
 var url       = require('url');
 var _         = require('underscore');
 var app       = module.exports = express.createServer();
@@ -32,23 +32,29 @@ app.configure('production', function(){
 // Routes
 //////////////   H O M E   ///////////////
 app.get( '/', function ( req, res ) {
-  req.session.username = '';
+  delete req.session.username;
   res.render( 'index.html', {
     title: 'Racoon wypierze twoje dane!'
   });
 });
 
+
 //////////////   L O G I N   ///////////////
 app.post( '/login/', function ( req, res ) {
     var user = req.body.user;
     var pass = req.body.pass;
-    var db_users = (new Mongolian).db('victor_db').collection('victor_users');
+    var db_users = mongo.db('racoon_db').collection('racoon_users');
 
     // clear session user-login data
     delete req.session.username;
 
     // get user data from db and check the login
-    db_users.findOne({ user: user }, function( err, db_user ) {
+    db_users.findOne({ user: user }, authenticateUser );
+    console.log( "Poszło do bazy" );
+
+    function authenticateUser( err, db_user ) {
+        console.log( "Znalazłem: "+db_user );
+	console.log( ">>>>>> " + err );
         if( !db_user ) {
             req.session.error = 'user';
             res.writeHead( 302, {
@@ -71,7 +77,7 @@ app.post( '/login/', function ( req, res ) {
             });
             res.end();
         }
-    });
+    }
 });
 
 //////////////  E R R O R   L O G I N   ///////////////
@@ -102,7 +108,7 @@ app.post( '/register/', function ( req, res ) {
     var pass = req.body.pass;
 
     // connect to db
-    var db_users = (new Mongolian).db('victor_db').collection('victor_users');
+    var db_users = mongo.db('racoon_db').collection('racoon_users');
 
     db_users.findOne({ user: user }, function( err, db_user ) {
         // user already in db --> ask for a new login
@@ -143,11 +149,12 @@ app.get( '/user/:name', function ( req, res ) {
     }
 
     var user = req.params.name;
-    var db_users = (new Mongolian).db('victor_db').collection('victor_users');
-    var db_cols = (new Mongolian).db('victor_db').collection('victor_data');
-    var db_meta = (new Mongolian).db('victor_db').collection('victor_meta');
+    var db_users = mongo.db('racoon_db').collection('racoon_users');
+    var db_cols = mongo.db('racoon_db').collection('racoon_data');
+    var db_meta = mongo.db('racoon_db').collection('racoon_meta');
 
     db_users.findOne({ user: user }, function( err, db_user ) {
+    	console.log( db_user );
         // turn _id hashes to ObjectIds
         var ObjectId = require('mongolian').ObjectId;
         var obj_list = db_user['rows'].map( function ( e ) {
@@ -197,7 +204,7 @@ app.get( '/user/:name', function ( req, res ) {
 
 //////////////   S E A R C H  : P O V I A T  ///////////////
 app.get( '/search/:poviat', function ( req, res ) {
-    var cols = (new Mongolian).db('victor_db').collection('victor_data');
+    var cols = mongo.db('racoon_db').collection('racoon_data');
 
     cols.find({ powiat: req.params.poviat }).toArray( function ( err, data ) {
         res.render( 'table.html', {
@@ -216,7 +223,7 @@ app.get( '/search/', function ( req, res ) {
     var what   = params.query.what || '';
     var where  = params.query.where || '';
 
-    var cols = (new Mongolian).db('victor_db').collection('victor_data');
+    var cols = mongo.db('racoon_db').collection('racoon_data');
     var query  = {};
 
     var render = function ( query ) {
@@ -298,9 +305,9 @@ app.post( '/approved/', function( req, res ) {
     }
 
     var ObjectId = require('mongolian').ObjectId;
-    var db_rows  = (new Mongolian).db('victor_db').collection('victor_data');
-    var meta_col = (new Mongolian).db('victor_db').collection('victor_meta');
-    var db_users = (new Mongolian).db('victor_db').collection('victor_users');
+    var db_rows  = mongo.db('racoon_db').collection('racoon_data');
+    var meta_col = mongo.db('racoon_db').collection('racoon_meta');
+    var db_users = mongo.db('racoon_db').collection('racoon_users');
 
     var row_id = req.body.id;
     var set    = JSON.parse( req.body.set );
@@ -356,7 +363,7 @@ app.post( '/update/', function(req, res) {
     var key = req.body.key,
         val = req.body.value,
         row_id = req.body.id;
-    var db_rows = (new Mongolian).db('victor_db').collection('victor_data');
+    var db_rows = mongo.db('racoon_db').collection('racoon_data');
 
     var new_value = {};
     new_value[key] = val;
@@ -369,7 +376,7 @@ app.post( '/update/', function(req, res) {
 
 app.get( '/get_comments/', function(req, res) {
     var ObjectId = require('mongolian').ObjectId;
-    var db_rows  = (new Mongolian).db('victor_db').collection('victor_data');
+    var db_rows  = mongo.db('racoon_db').collection('racoon_data');
 
     var params = url.parse( req.url, true );
     var id = params.query.id;
@@ -392,8 +399,8 @@ app.post( '/comment/', function(req, res) {
     var text = req.body.text;
 
     var ObjectId = require('mongolian').ObjectId;
-    var db_rows  = (new Mongolian).db('victor_db').collection('victor_data');
-    var meta_col = (new Mongolian).db('victor_db').collection('victor_meta');
+    var db_rows  = mongo.db('racoon_db').collection('racoon_data');
+    var meta_col = mongo.db('racoon_db').collection('racoon_meta');
 
     var new_comment = { 'user': user, 'text': text };
 
@@ -436,7 +443,7 @@ app.post( '/comment/', function(req, res) {
 });
 
 
-app.listen( 3030 );
+app.listen( 10100, '91.227.40.36' );
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 
 

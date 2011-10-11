@@ -52,11 +52,11 @@ def prepare_data(csv_file):
 
 
 if __name__ == '__main__':
-    conn_host = '127.0.0.1'
-    conn_port = 27017
+    conn_host = '91.227.40.36'
+    conn_port = 8000
     # TODO: create db/collection name
-    conn_db = 'victor_db'
-    coll_name = 'victor_data'
+    conn_db = 'racoon_db'
+    coll_name = 'racoon_data'
 
     filenames = os.listdir( '.' )
 

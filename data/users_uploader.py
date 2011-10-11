@@ -31,15 +31,15 @@ def prepare_data():
         {'user': 'Jerzy', 'pass': 'demezer', 'rows': []},
         {'user': 'Bartek', 'pass': 'stalewski', 'rows': []},
         {'user': 'trzewiczek', 'pass': 'misia', 'rows': []},
-        {'user': 'wypas', 'pass': 'kajak', 'rows': []}
+        {'user': 'test', 'pass': 'test', 'rows': []}
     ]
 
 
 if __name__ == '__main__':
-    conn_host = '127.0.0.1'
-    conn_port = 27017
-    conn_db = 'victor_db'
-    coll_name = 'victor_users'
+    conn_host = '91.227.40.36'
+    conn_port = 8000
+    conn_db = 'racoon_db'
+    coll_name = 'racoon_users'
 
     filename = 'podlaskie - rejestr_csv.csv'
 
