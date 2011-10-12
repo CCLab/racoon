@@ -1,6 +1,7 @@
 var express   = require('express');
 var url       = require('url');
 var _         = require('underscore');
+var crypto    = require('crypto');
 
 var Mongolian = require('mongolian');
 var mongo     = new Mongolian('91.227.40.36:8000');
@@ -12,7 +13,8 @@ var db_meta   = mongo.db('racoon_db').collection('racoon_meta');
 //////////  L O G I N  //////////
 exports.login = function ( req, res ) {
     var user = req.body.user;
-    var pass = req.body.pass;
+    var md5_pass  = crypto.createHash('md5');
+    md5_pass.update( req.body.pass );
     // clear session user-login data
     delete req.session.username;
 
@@ -30,7 +32,7 @@ exports.login = function ( req, res ) {
             });
             res.end();
         }
-        else if( pass !== db_user['pass'] ) {
+        else if( md5_pass.digest('hex') !== db_user['pass'] ) {
             req.session.error = 'pass';
             res.writeHead( 302, {
                 'Location': '/error_login/'
@@ -75,7 +77,8 @@ exports.new_user = function ( req, res ) {
 exports.register = function ( req, res ) {
     // form data
     var user = req.body.user;
-    var pass = req.body.pass;
+    var md5_pass  = crypto.createHash('md5');
+    md5_pass.update( req.body.pass );
 
     // check if the user doesn't exist before creating a new one
     db_users.findOne({ user: user }, create_new_user );
@@ -94,7 +97,7 @@ exports.register = function ( req, res ) {
             // add user to db
             db_users.insert({
                 user: user,
-                pass: pass,
+                pass: md5_pass.digest('hex'),
                 rows: []
             });
 
