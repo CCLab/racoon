@@ -50,7 +50,12 @@
           <% for( var i in data ) { %>   
           <tr id="<%= data[i]['_id'] %>"<% if( data[i]['approved'] ) { %>class="approved"<% } %>>
             <td style="width: 25px"><input type="checkbox" <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
-            <td style="width: 30px"><img src="/img/comments.png" alt="K" /></td>
+            <td style="width: 50px">
+              <% if( !!data[i]['comments'] ) { %>
+              <span style="font-size: 16px; margin-bottom: 5px; margin-right: 7px; font-weight: bold; color: #3b3b3b;"><%= data[i]['comments_count'] %></span>
+              <% } %>
+              <img src="/img/comments.png" alt="K" />
+            </td>
             <td class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
             <td class="editable" data-key="ulica"><%= data[i]['ulica'] %></td>
             <td class="editable" data-key="wojewodztwo"><%= data[i]['wojewodztwo'] %></td>

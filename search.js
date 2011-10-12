@@ -8,6 +8,11 @@ exports.poviat = function ( req, res ) {
     var cols = mongo.db('racoon_db').collection('racoon_data');
 
     cols.find({ powiat: req.params.poviat }).toArray( function ( err, data ) {
+        data = data.map( function ( e ) {
+                        e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
+                        return e;
+                   });
+
         res.render( 'table.html', {
             title: 'Racoon',
             data: data,
@@ -37,6 +42,10 @@ exports.general = function ( req, res ) {
                 collection = where;
             }
 
+            data = data.map( function ( e ) {
+                            e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
+                            return e;
+                       });
             res.render( 'table.html', {
                 title: 'Racoon',
                 data: data,
