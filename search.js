@@ -11,6 +11,15 @@ exports.poviat = function ( req, res ) {
         data = data.map( function ( e ) {
                         e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
                         return e;
+                   })
+                   .sort( function ( a, b ) {
+                       var a_id = a['_id']+'';
+                       var b_id = b['_id']+'';
+
+                       if( a_id > b_id ) return 1;
+                       if( a_id < b_id ) return -1;
+
+                       return 0;
                    });
 
         res.render( 'table.html', {
@@ -45,7 +54,17 @@ exports.general = function ( req, res ) {
             data = data.map( function ( e ) {
                             e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
                             return e;
+                       })
+                       .sort( function ( a, b ) {
+                           var a_id = a['_id']+'';
+                           var b_id = b['_id']+'';
+
+                           if( a_id > b_id ) return 1;
+                           if( a_id < b_id ) return -1;
+
+                           return 0;
                        });
+
             res.render( 'table.html', {
                 title: 'Racoon',
                 data: data,
