@@ -133,7 +133,8 @@ exports.page = function ( req, res ) {
                 return e['wojewodztwo'] + ' :: ' + e['gmina'] + ' :: ' + e['okr_ob'];
             });
 
-            db_meta.find({}).toArray( function ( err, meta_data ) {
+            // how to make Mongo sort the utf-8 ?!
+            db_meta.find({}).sort({'name':1}).toArray( function ( err, meta_data ) {
 
                 db_cols.find({ 'comments.user': user }).toArray( function ( err, comments_list ) {
                     comments_list = _.flatten( comments_list.map( function ( e ) {
@@ -150,6 +151,7 @@ exports.page = function ( req, res ) {
                         });
                         return comments;
                     })).reverse();
+
 
                     res.render( 'user.html', {
                         title: 'Strona użytkownika: ' + user,
