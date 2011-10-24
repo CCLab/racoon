@@ -25,7 +25,7 @@ exports.poviat = function ( req, res ) {
         res.render( 'table.html', {
             title: 'Racoon',
             data: data,
-            user: req.session.username,
+            user: req.session.user,
             collection: 'Powiat ' + req.params.poviat
         });
     });
@@ -68,7 +68,7 @@ exports.general = function ( req, res ) {
             res.render( 'table.html', {
                 title: 'Racoon',
                 data: data,
-                user: req.session.username,
+                user: req.session.user,
                 collection: collection
             });
         });
@@ -111,7 +111,7 @@ exports.general = function ( req, res ) {
             res.render( 'table.html', {
                 title: 'Racoon',
                 data: data,
-                user: req.session.username,
+                user: req.session.user,
                 collection: what + ' :: ' + where
             });
         });

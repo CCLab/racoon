@@ -1,7 +1,7 @@
-var express   = require('express');
-var url       = require('url');
-var _         = require('underscore');
-var crypto    = require('crypto');
+var express      = require('express');
+var url          = require('url');
+var _            = require('underscore');
+var crypto       = require('crypto');
 
 var Mongolian = require('mongolian');
 var mongo     = new Mongolian('91.227.40.36:8000');
@@ -16,7 +16,7 @@ exports.login = function ( req, res ) {
     var md5_pass  = crypto.createHash('md5');
     md5_pass.update( req.body.pass );
     // clear session user-login data
-    delete req.session.username;
+    delete req.session.user;
 
     // get user data from db and check the login
     db_users.findOne({ user: user }, authenticateUser );
@@ -27,27 +27,29 @@ exports.login = function ( req, res ) {
         // do the auth magic
         if( !db_user ) {
             req.session.error = 'user';
-            res.writeHead( 302, {
-                'Location': '/error_login/',
-            });
+            res.redirect( '/error_login/' );
             res.end();
         }
         else if( md5_pass.digest('hex') !== db_user['pass'] ) {
             req.session.error = 'pass';
-            res.writeHead( 302, {
-                'Location': '/error_login/'
-            });
+            res.redirect( '/error_login/' );
             res.end();
         }
         else {
             // on successful login store user name in session
-            req.session.username = user;
-            res.writeHead( 302, {
-                'Location': '/user/' + user
-            });
+            req.session.user = user;
+            res.redirect( '/user/' + user );
             res.end();
         }
     }
+};
+
+
+//////////  L O G O U T  //////////
+exports.logout = function ( req, res ) {
+    delete req.session.user;
+
+    res.redirect('/');
 };
 
 
@@ -102,7 +104,7 @@ exports.register = function ( req, res ) {
             });
 
             // after successful creation, store user name in session
-            req.session.username = user
+            req.session.user = user
             // move to user page
             res.writeHead( 302, {
                 'Location': '/user/' + user
@@ -115,13 +117,6 @@ exports.register = function ( req, res ) {
 
 //////////  P A G E  //////////
 exports.page = function ( req, res ) {
-    // if the user is not logged in --> move back to login page
-    if ( !req.session.username ) {
-        res.writeHead( 302, {
-            'Location': '/'
-        })
-        res.end();
-    }
     var user = req.params.name;
 
     db_users.findOne({ user: user }, function( err, db_user ) {

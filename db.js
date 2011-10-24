@@ -11,14 +11,7 @@ var db_users  = mongo.db('racoon_db').collection('racoon_users');
 //////////  A P P R O V E D  //////////
 exports.approved = function ( req, res ) {
     // check if the user is logged in
-    var user = req.session.username;
-    if( !user ) {
-        res.writeHead( 302, {
-            'Location': '/'
-        });
-        res.end();
-    }
-
+    var user = req.session.user;
     var row_id = req.body.id;
     var set    = JSON.parse( req.body.set );
 
@@ -113,7 +106,7 @@ exports.get_comments = function(req, res) {
 
 //////////  C O M M E N T  //////////
 exports.comment = function(req, res) {
-    var user = req.session.username;
+    var user = req.session.user;
     var row_id = req.body.id;
     var text = req.body.text;
 
