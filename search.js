@@ -26,7 +26,7 @@ exports.poviat = function ( req, res ) {
             title: 'Racoon',
             data: data,
             user: req.session.user,
-            collection: 'Powiat ' + req.params.poviat
+            collection: 'Województwo ' + data[0]['wojewodztwo'] + ' &rarr; Powiat ' + req.params.poviat
         });
     });
 };

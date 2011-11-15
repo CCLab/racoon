@@ -107,3 +107,7 @@ input[type="submit"]:hover {
   cursor: pointer;
   background-color: #eee;
 }
+
+.empty {
+  opacity: 0.3;
+}

@@ -118,6 +118,10 @@ exports.register = function ( req, res ) {
 //////////  P A G E  //////////
 exports.page = function ( req, res ) {
     var user = req.params.name;
+    var sessionStore = req.sessionStore.get( req.sessionID, function ( err, session ) {
+        console.log( "TU >>> " + session.user );
+    });
+
 
     db_users.findOne({ user: user }, function( err, db_user ) {
         // turn _id hashes to ObjectIds

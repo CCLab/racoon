@@ -1,8 +1,22 @@
 (function () {
     var value;
+    var socket = io.connect('http://localhost:3030');
+
+    socket.on( 'update-comment', function ( data ) {
+        var row = $('#'+data.id);
+        var comment_count = row.find('.comment-count');
+        var number = parseInt( comment_count.html(), 10 );
+
+        comment_count.html( number + 1 ).css({ 'font-weight': 'bold' });
+
+        row.find('img').removeClass('empty');
+    });
+
+    socket.on( 'update-cell', function ( data ) {
+        $('#'+data.id).find('td[data-key='+data.key+']').html( data.value );
+    });
 
     $(document).ready(function() {
-
         makezebra();
         $('table').fixedtableheader();
         setClickable();
@@ -26,11 +40,11 @@
     }
 
     function addEditEvent( event, TdCell) {
-            if( $('#editing').length > 0 ) {
-                confirmInput();
-            }
-            value = TdCell.html( );
-            editInPlace( TdCell );
+        if( $('#editing').length > 0 ) {
+            confirmInput();
+        }
+        value = TdCell.html( );
+        editInPlace( TdCell );
     }
 
     function editInPlace( TdCell ){
@@ -63,21 +77,17 @@
         });
     }
 
-    function confirmInput(){
+    function confirmInput() {
         var input = $('#editing');
-        var newValue = input.val();
+        var new_value = input.val();
         var TdCell = input.parent();
-        if (value !== newValue){
-            $.ajax({
-                url : '/update/',
-                type : 'POST',
-                data : {
-                    id: TdCell.parent().attr('id'),
-                    key: TdCell.attr('data-key'),
-                    value: newValue,
-                },
+        if( value !== new_value ) {
+            socket.emit( 'update_cell', {
+                id: TdCell.parent().attr('id'),
+                key: TdCell.attr('data-key'),
+                value: new_value,
             });
-            value = newValue;
+            value = new_value;
         }
 
         TdCell.empty();
@@ -130,17 +140,22 @@
 
         $('body').append( html.join('') );
         $('#add-comment').click( function () {
-            $.ajax({
-                url: '/comment/',
-                type: 'POST',
-                data: {
-                    id: $('textarea').attr('id'),
-                    text: $('textarea').val()
-                },
-                success: function () {
-                    $('#comments-panel').remove();
-                }
+            // socket code goes here
+            console.log( "CLIK" );
+            socket.emit( 'comment', {
+                id: $('textarea').attr('id'),
+                text: $('textarea').val()
             });
+
+            $('#comments-panel').remove();
+
+            var row = $('#'+received.id);
+            var comment_count = row.find('.comment-count');
+            var number = parseInt( comment_count.html(), 10 );
+
+            comment_count.html( number + 1 ).css({ 'font-weight': 'bold' });
+
+            row.find('img').removeClass('empty');
         });
 
         $('#cancel-comment').click( function () {

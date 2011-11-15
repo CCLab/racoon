@@ -70,18 +70,15 @@ exports.approved = function ( req, res ) {
 
 
 //////////  U P D A T E  //////////
-exports.update = function(req, res) {
-    var key = req.body.key;
-    var val = req.body.value;
-    var row_id = req.body.id;
+exports.update = function( key, value, id ) {
+    var key = key;
+    var val = value;
+    var row_id = id;
 
     var new_value = {};
     new_value[key] = val;
 
     db_rows.update({ '_id': new ObjectId( row_id ) }, { '$set': new_value });
-
-    res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
-    res.end();
 };
 
 
@@ -105,10 +102,10 @@ exports.get_comments = function(req, res) {
 
 
 //////////  C O M M E N T  //////////
-exports.comment = function(req, res) {
-    var user = req.session.user;
-    var row_id = req.body.id;
-    var text = req.body.text;
+exports.comment = function( user, id, text ) {
+    var user = user;
+    var row_id = id;
+    var text = text;
 
     var new_comment = { 'user': user, 'text': text };
 
@@ -146,8 +143,6 @@ exports.comment = function(req, res) {
                             });
         });
     });
-    res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
-    res.end();
 };
 
 
