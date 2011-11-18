@@ -1,43 +1,54 @@
-<h1>
+<h1 style="float: left">
 	<img style="vertical-align: middle;" src="/img/user_icon.png" alt="" />
-  <%= user %></h1>
-<hr />
-
-<!--  L E F T   P A N E L  -->
-<div style="width: 510px; float: left;">
-  <h2>Z jakimi danymi się zmierzysz?</h2>
-  <h3>Wyszukaj interesujących cię danych</h3>
-  <form action="/search/" method="get">
-    <input type="text" name="what" placeholder="Co?" />
-    <input type="text" name="where" placeholder="Gdzie?" />
-    <input type="submit" value="Szukaj" />
-  </form>
-  <h3>Przejrzyj zabytki w wybranym powiecie</h3>
-  <table style="width: 500px; border: 0px;">
-  <% for( var i in meta ) { %>
-    <tr>
-        <td><a id="<%= meta[i]['_id'] %>" class="button voivodship">Województwo <%= meta[i]['name'] %></a></td>
-        <td><span style="margin-left: 10px;">Liczba zabytków: <%= meta[i]['count'] %></span></td>
-        <td><span style="margin-left: 10px;">Poprawionych: <%= meta[i]['edited'] %></span></td>
-    </tr>
-
-    <% for( var j in meta[i]['powiats'] ) { %>
-      <tr style="margin-bottom: 10px;" class="poviats <%= meta[i]['_id'] %>">
-        <td style="padding-left: 20px;"><a href="/search/<%= meta[i]['powiats'][j]['name'] %>" class="button">
-          Powiat <%= meta[i]['powiats'][j]['name'] %> <b>&gt;&gt;</b>
-        </a></td>
-        <td><span style="margin-left: 10px;">Liczba zabytków: <%= meta[i]['powiats'][j]['count'] %></span></td>
-        <td><span style="margin-left: 10px;">Poprawionych: <%= meta[i]['powiats'][j]['edited'] %></span></td>
-      </tr>
-    
-    <% } %>
-  <% } %>
-  </table>
-
+  <%= user %>
+</h1>
+<div style="float: right; padding: 20px 0px;">
+  <img src="/img/logout_icon.png" alt="Logout" />
 </div>
 
+<br class="clear" />
+
+
+<hr />
+<!--  L E F T   P A N E L  -->
+<h2>Wróć do ostatnio edytowanych</h2>
+<a class="button">Woj. dolnośląskie > pow. m. Wrocław &nbsp; <b>>></b></a>
+
+<div style="border-top: 1px solid #ccc; margin-top: 30px;"></div>
+<h2>Wyszukaj interesujących cię danych</h2>
+<form action="/page/0/search/" method="get">
+  <input type="text" name="what" placeholder="Co?" />
+  <input type="text" name="where" placeholder="Gdzie?" />
+  <input type="submit" value="Szukaj" />
+</form>
+
+<div style="border-top: 1px solid #ccc; margin-top: 30px;"></div>
+<h2>Przejrzyj zabytki w wybranym powiecie</h2>
+<table style="width: 100%; border: 0px;">
+<% for( var i in meta ) { %>
+  <tr>
+      <td><a id="<%= meta[i]['_id'] %>" class="button voivodship">Województwo <%= meta[i]['name'] %></a></td>
+      <td><span style="margin-left: 10px;">Liczba zabytków: <%= meta[i]['count'] %></span></td>
+      <td><span style="margin-left: 10px;">Poprawionych: <%= meta[i]['edited'] %></span></td>
+  </tr>
+
+  <% for( var j in meta[i]['powiats'] ) { %>
+    <tr style="margin-bottom: 10px;" class="poviats <%= meta[i]['_id'] %>">
+      <td style="padding-left: 20px;"><a href="/page/0/search/<%= meta[i]['powiats'][j]['name'] %>" class="button">
+        Powiat <%= meta[i]['powiats'][j]['name'] %> <b>&gt;&gt;</b>
+      </a></td>
+      <td><span style="margin-left: 10px;">Liczba zabytków: <%= meta[i]['powiats'][j]['count'] %></span></td>
+      <td><span style="margin-left: 10px;">Poprawionych: <%= meta[i]['powiats'][j]['edited'] %></span></td>
+    </tr>
+  
+  <% } %>
+<% } %>
+</table>
+
+
+
 <!--  R I G T H   P A N E L  -->
-<div style="float: right; width: 400px;">
+<!--<div style="float: right; width: 400px;">
 <% if( rows_count === 0 ) { %>
   <h2>Jeszcze nie ma twoich edycji - czas zacząć!!</h2>
 <% } else { %>
@@ -58,15 +69,21 @@
   <h2>Twoje komentarze:</h2> 
   <ul id="comments_list">
     <% for( var i in comments_list ) { %>
-    <li data-id="<%= comments_list[i]['id'] %>" style="margin-bottom: 12px;">
-      <span style="color: #888;"><%= comments_list[i]['parish'] %> :: <%= comments_list[i]['name'] %></span><br />
-      <%= comments_list[i]['text'] %>
+    <li data-id="<%= comments_list[i]['_id'] %>" style="padding: 8px 5px; border-radius: 5px;">
+      <p style="margin: 0px 0px; margin-bottom: 3px;padding: 3px 2px; color: #333; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;">
+        <%= comments_count[i] %> <span style="margin: 0px 5px;"></span> 
+        Woj. <%= comments_list[i]['wojewodztwo'] %> > pow. <%= comments_list[i]['powiat'] %> <span style="margin: 0px 5px;"></span> 
+        <%= comments_list[i]['miejscowosc'] %> | <%= comments_list[i]['okr_ob'] %> 
+      </p>
+      <p style="margin: -3px 0px; padding: 3px 2px; padding-left: 5px; background-color: #bbb">
+      <%= comments_list[i]['comments'][comments_count[i]-1]['text'] %>
+      </p>
     </li>
     <% } %>
   </ul>
 <% } %>
 </div>
-
+-->
 <script type="text/javascript">
   $('.poviats').hide();
 
@@ -136,13 +153,14 @@
   });
 
 </script>
+<!--
 <style type="text/css">
   tr:hover {
-    background-color: #eee !important;
+    background-color: #fafafa !important;
   }
   .button {
     background-color: #e3e3e3;
   }
 </style>
 
-<a href="/logout/" class="button" style="position: fixed; top: 5px; right: 2px">Logout</a>
+<a href="/logout/" class="button" style="position: fixed; top: 5px; right: 2px">Logout</a> -->

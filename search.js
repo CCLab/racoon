@@ -2,54 +2,24 @@ var express   = require('express');
 var Mongolian = require('mongolian');
 var mongo     = new Mongolian('91.227.40.36:8000');
 var url       = require('url');
+var limit     = 20;
 
 //////////  P O V I A T  //////////
 exports.poviat = function ( req, res ) {
     var cols = mongo.db('racoon_db').collection('racoon_data');
+    var poviat = req.params.poviat;
+    var page   = parseInt( req.params.page, 10 );
 
-    cols.find({ powiat: req.params.poviat }).toArray( function ( err, data ) {
-        data = data.map( function ( e ) {
-                        e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
-                        return e;
-                    })
-                    .sort( function ( a, b ) {
-                       var a_id = a['_id']+'';
-                       var b_id = b['_id']+'';
+    cols.find({ powiat: req.params.poviat }).count( function ( err, count ) {
+        cols.find({ powiat: req.params.poviat }).skip( limit * page ).limit( limit ).toArray( function ( err, data ) {
+            var prev_page = !!page && !!data.length ?
+                            "/page/" + ( page - 1 ) + "/search/" + poviat : undefined;
+            var next_page = page * limit >= count || data.length < limit ?
+                            undefined : "/page/" + ( page + 1 ) + "/search/" + poviat;
 
-                       if( a_id > b_id ) return 1;
-                       if( a_id < b_id ) return -1;
-
-                       return 0;
-                   });
-
-        res.render( 'table.html', {
-            title: 'Racoon',
-            data: data,
-            user: req.session.user,
-            collection: 'Województwo ' + data[0]['wojewodztwo'] + ' &rarr; Powiat ' + req.params.poviat
-        });
-    });
-};
-
-//////////  G E N E R A L  //////////
-exports.general = function ( req, res ) {
-    var params = url.parse( req.url, true );
-    var what   = params.query.what || '';
-    var where  = params.query.where || '';
-
-    var cols = mongo.db('racoon_db').collection('racoon_data');
-    var query  = {};
-
-    var render = function ( query ) {
-        cols.find( query ).toArray( function ( err, data ) {
-            var collection;
-
-            if( !!what && !where ) {
-                collection = what;
-            }
-            if( !what && !!where ) {
-                collection = where;
-            }
+            var collection_name = !!data.length ?
+                                  "Województwo " + data[0]['wojewodztwo'] + " &rarr; Powiat " + poviat :
+                                  "Brak danych";
 
             data = data.map( function ( e ) {
                             e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
@@ -69,7 +39,63 @@ exports.general = function ( req, res ) {
                 title: 'Racoon',
                 data: data,
                 user: req.session.user,
-                collection: collection
+                collection: collection_name,
+                prev_page: prev_page,
+                next_page: next_page
+            });
+        });
+    });
+};
+
+//////////  G E N E R A L  //////////
+exports.general = function ( req, res ) {
+    var page   = parseInt( req.params.page, 10 );
+    var params = url.parse( req.url, true );
+    var what   = params.query.what || '';
+    var where  = params.query.where || '';
+    var search = params.search;
+
+    var cols = mongo.db('racoon_db').collection('racoon_data');
+    var query  = {};
+
+    var render = function ( query ) {
+        cols.find( query ).count( function ( err, count ) {
+            cols.find( query ).skip( limit * page ).limit( limit ).toArray( function ( err, data ) {
+                var collection_name = "Brak danych";
+                var prev_page = !!page && !!data.length ?
+                                "/page/" + ( page - 1 ) + "/search/" + search : undefined;
+                var next_page = page * limit >= count || data.length < limit ?
+                                undefined : "/page/" + ( page + 1 ) + "/search/" + search;
+
+                if( !!what && !where ) {
+                    collection_name = what;
+                }
+                if( !what && !!where ) {
+                    collection_name = where;
+                }
+
+                data = data.map( function ( e ) {
+                                e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
+                                return e;
+                            })
+                            .sort( function ( a, b ) {
+                               var a_id = a['_id']+'';
+                               var b_id = b['_id']+'';
+
+                               if( a_id > b_id ) return 1;
+                               if( a_id < b_id ) return -1;
+
+                               return 0;
+                           });
+
+                res.render( 'table.html', {
+                    title: 'Racoon',
+                    data: data,
+                    user: req.session.user,
+                    collection: collection_name,
+                    prev_page: prev_page,
+                    next_page: next_page
+                });
             });
         });
     };

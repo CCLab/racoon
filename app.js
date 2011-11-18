@@ -99,8 +99,8 @@ app.get ('/user/:name', is_login, user.page );
 
 
 //////////////   S E A R C H   ///////////////
-app.get ('/search/:poviat', is_login, search.poviat );
-app.get ('/search/', is_login, search.general );
+app.get ('/page/:page/search/:poviat', is_login, search.poviat );
+app.get ('/page/:page/search/', is_login, search.general );
 
 
 //////////////   D B   ///////////////

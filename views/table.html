@@ -1,6 +1,6 @@
       <br /><a href="/user/<%= user %>" class="button" style="float: left; font-weight: bold; margin-left: 10px;">&lt;&lt; Powrót do profilu użytkownika</a>
     
-      <form action="/search/" method="get" style="margin-left: 25px; float: left;">
+      <form action="/page/0/search/" method="get" style="margin-left: 25px; float: left;">
         <input type="text" name="what" placeholder="Co?" />
         <input type="text" name="where" placeholder="Gdzie?" />
         <input type="submit" value="Szukaj" />
@@ -72,7 +72,11 @@
           <% } %>
         </tbody>
       </table>
-  <a href="/logout/" class="button" style="position: fixed; top: 5px; right: 2px">Logout</a>
+    <br />
+    <% if( !!prev_page ) { %><a href="<%= prev_page %>">Poprzednia strona</a> <% } %>
+    <% if( !!prev_page && !!next_page ) { %> :: <% } %>
+    <% if( !!next_page ) { %><a href="<%= next_page %>">Następna strona</a> <% } %>
+
   <script src="/js/jquery-ui.js"></script>
   <script src="/js/jquery.fixedtableheader-1-0-2.min.js"> </script>
   <script src="/js/table.js"> </script>
@@ -85,5 +89,8 @@
     }
     #data-table {
       width: 100%;
+    }
+    table {
+      border: 1px #3b3b3b solid;
     }
   </style>
