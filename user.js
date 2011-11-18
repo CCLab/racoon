@@ -118,10 +118,6 @@ exports.register = function ( req, res ) {
 //////////  P A G E  //////////
 exports.page = function ( req, res ) {
     var user = req.params.name;
-    var sessionStore = req.sessionStore.get( req.sessionID, function ( err, session ) {
-        console.log( "TU >>> " + session.user );
-    });
-
 
     db_users.findOne({ user: user }, function( err, db_user ) {
         // turn _id hashes to ObjectIds
@@ -140,33 +136,26 @@ exports.page = function ( req, res ) {
             // how to make Mongo sort the utf-8 ?!
             db_meta.find({}).sort({'name':1}).toArray( function ( err, meta_data ) {
 
-                db_cols.find({ 'comments.user': user }).toArray( function ( err, comments_list ) {
-                    comments_list = _.flatten( comments_list.map( function ( e ) {
-                        var comments = e['comments'].map( function ( c ) {
-                            return {
-                                user: c['user'],
-                                text: c['text'],
-                                id: e['_id']+'',
-                                parish: e['gmina'],
-                                name: e['okr_ob']
-                            };
-                        }).filter( function ( e ) {
-                            return e['user'] === user;
+                db_cols.find({ 'comments.user': user },
+                             { 'okr_ob': 1, 'comments': 1, 'wojewodztwo': 1, 'powiat': 1, 'miejscowosc': 1 })
+                       .toArray( function ( err, comments_list ) {
+                            comments_list.reverse();
+
+                            var comments_count = comments_list.map( function ( e ) {
+                                return e.comments.length;
+                            });
+
+                            res.render( 'user.html', {
+                                title: 'Strona użytkownika: ' + user,
+                                user: user,
+                                rows_count: !!obj_list.length ? list.length : 0,
+                                rows_list: !!obj_list.length ? list : [],
+                                comments_total: comments_list.length,
+                                comments_count: comments_count,
+                                comments_list: comments_list,
+                                meta: meta_data
+                            });
                         });
-                        return comments;
-                    })).reverse();
-
-
-                    res.render( 'user.html', {
-                        title: 'Strona użytkownika: ' + user,
-                        user: user,
-                        rows_count: !!obj_list.length ? list.length : 0,
-                        rows_list: !!obj_list.length ? list : [],
-                        comments_count: comments_list.length,
-                        comments_list: comments_list,
-                        meta: meta_data
-                    });
-                });
             });
         });
     });
