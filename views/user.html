@@ -16,7 +16,7 @@
 
 <div style="border-top: 1px solid #ccc; margin-top: 30px;"></div>
 <h2>Wyszukaj interesujących cię danych</h2>
-<form action="/page/0/search/" method="get">
+<form action="/page/1/search/" method="get">
   <input type="text" name="what" placeholder="Co?" />
   <input type="text" name="where" placeholder="Gdzie?" />
   <input type="submit" value="Szukaj" />
@@ -34,7 +34,7 @@
 
   <% for( var j in meta[i]['powiats'] ) { %>
     <tr style="margin-bottom: 10px;" class="poviats <%= meta[i]['_id'] %>">
-      <td style="padding-left: 20px;"><a href="/page/0/search/<%= meta[i]['powiats'][j]['name'] %>" class="button">
+      <td style="padding-left: 20px;"><a href="/page/1/search/<%= meta[i]['powiats'][j]['name'] %>" class="button">
         Powiat <%= meta[i]['powiats'][j]['name'] %> <b>&gt;&gt;</b>
       </a></td>
       <td><span style="margin-left: 10px;">Liczba zabytków: <%= meta[i]['powiats'][j]['count'] %></span></td>

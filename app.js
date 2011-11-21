@@ -3,18 +3,12 @@ var MongoDBStore = require('connect-mongodb');
 var MemoryStore  = express.session.MemoryStore,
     sessionStore = new MemoryStore();
 
-console.log( sessionStore );
 var user   = require('./user');
 var search = require('./search');
 var db     = require('./db');
-//var sock   = require('./sock');
 
 var app = module.exports = express.createServer();
 
-var connect = require('connect');
-var sio = require('socket.io').listen( app );
-var parseCookie = connect.utils.parseCookie;
-var Session = connect.middleware.session.Session;
 
 // Configuration
 app.register( '.html', require('ejs') );
@@ -41,44 +35,6 @@ app.configure('development', function(){
 app.configure('production', function(){
     app.use(express.errorHandler());
 });
-
-// initializing socket.io authentication mechanism
-sio.set( 'authorization', function ( data, accept ) {
-    if( data.headers.cookie ) {
-        data.cookie = parseCookie( data.headers.cookie );
-        data.sessionID = data.cookie['express.sid'];
-        data.sessionStore = sessionStore;
-        sessionStore.get( data.sessionID, function ( err, session ) {
-            if ( err || !session ) {
-                accept('Error', false);
-            } else {
-                data.session = new Session( data, session );
-                accept( null, true );
-            }
-        });
-    } else {
-       return accept( 'No cookie transmitted.', false );
-    }
-});
-
-sio.sockets.on( 'connection', function ( socket ) {
-
-    socket.on( 'comment', function ( data ) {
-        sessionStore.get( socket.handshake.sessionID, function ( err, session ) {
-            db.comment( session.user, data.id, data.text );
-        });
-
-        socket.broadcast.emit( 'update-comment', { id: data.id } );
-    });
-
-    socket.on( 'update_cell', function ( data ) {
-        db.update( data.key, data.value, data.id );
-
-        socket.broadcast.emit( 'update-cell', { id: data.id, key: data.key, value: data.value } );
-    });
-
-});
-
 
 // Routes
 //////////////   H O M E   ///////////////
@@ -108,6 +64,7 @@ app.post('/approved/', db.approved );
 app.post('/update/', db.update );
 app.get ('/get_comments/', db.get_comments );
 app.post('/comment/', db.comment );
+app.post('/check_new_comments/', db.check_new_comments );
 
 //////////////   M I D D L E W A R E   //////////////
 function is_login( req, res, next ) {

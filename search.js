@@ -11,15 +11,20 @@ exports.poviat = function ( req, res ) {
     var page   = parseInt( req.params.page, 10 );
 
     cols.find({ powiat: req.params.poviat }).count( function ( err, count ) {
-        cols.find({ powiat: req.params.poviat }).skip( limit * page ).limit( limit ).toArray( function ( err, data ) {
-            var prev_page = !!page && !!data.length ?
+        cols.find({ powiat: req.params.poviat }).skip( limit * ( page-1 )).limit( limit ).toArray( function ( err, data ) {
+            var i;
+            var prev_page = !!( page-1 ) && !!data.length ?
                             "/page/" + ( page - 1 ) + "/search/" + poviat : undefined;
-            var next_page = page * limit >= count || data.length < limit ?
+            var next_page = ( page-1 ) * limit >= count || data.length < limit ?
                             undefined : "/page/" + ( page + 1 ) + "/search/" + poviat;
 
             var collection_name = !!data.length ?
                                   "Województwo " + data[0]['wojewodztwo'] + " &rarr; Powiat " + poviat :
                                   "Brak danych";
+            var pagination = [];
+            for( i = 1; i <= Math.ceil( count / limit ); i++ ) {
+                pagination.push( "/page/" + i + "/search/" + poviat );
+            }
 
             data = data.map( function ( e ) {
                             e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
@@ -40,8 +45,11 @@ exports.poviat = function ( req, res ) {
                 data: data,
                 user: req.session.user,
                 collection: collection_name,
+                count: count,
                 prev_page: prev_page,
-                next_page: next_page
+                next_page: next_page,
+                pagination: pagination,
+                page: page
             });
         });
     });
@@ -60,12 +68,19 @@ exports.general = function ( req, res ) {
 
     var render = function ( query ) {
         cols.find( query ).count( function ( err, count ) {
-            cols.find( query ).skip( limit * page ).limit( limit ).toArray( function ( err, data ) {
+            cols.find( query ).skip( limit * ( page-1 )).limit( limit ).toArray( function ( err, data ) {
+                var i;
                 var collection_name = "Brak danych";
-                var prev_page = !!page && !!data.length ?
+                var prev_page = !!( page-1 ) && !!data.length ?
                                 "/page/" + ( page - 1 ) + "/search/" + search : undefined;
-                var next_page = page * limit >= count || data.length < limit ?
+                var next_page = ( page-1 ) * limit >= count || data.length < limit ?
                                 undefined : "/page/" + ( page + 1 ) + "/search/" + search;
+
+                var pagination = [];
+                for( i = 1; i <= Math.ceil( count / limit ); i++ ) {
+                    pagination.push( "/page/" + i + "/search/" + search );
+                }
+
 
                 if( !!what && !where ) {
                     collection_name = what;
@@ -93,8 +108,11 @@ exports.general = function ( req, res ) {
                     data: data,
                     user: req.session.user,
                     collection: collection_name,
+                    count: count,
                     prev_page: prev_page,
-                    next_page: next_page
+                    next_page: next_page,
+                    pagination: pagination,
+                    page: page
                 });
             });
         });

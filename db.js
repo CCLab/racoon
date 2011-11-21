@@ -70,15 +70,18 @@ exports.approved = function ( req, res ) {
 
 
 //////////  U P D A T E  //////////
-exports.update = function( key, value, id ) {
-    var key = key;
-    var val = value;
-    var row_id = id;
+exports.update = function( req, res ) {
+    var key = req.body.key;
+    var val = req.body.value;
+    var row_id = req.body.id;
 
     var new_value = {};
     new_value[key] = val;
 
     db_rows.update({ '_id': new ObjectId( row_id ) }, { '$set': new_value });
+
+    res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
+    res.end();
 };
 
 
@@ -101,11 +104,34 @@ exports.get_comments = function(req, res) {
 };
 
 
+//////////  C H E C K   N E W   C O M M E N T S  //////////
+exports.check_new_comments = function( req, res ) {
+    var ids = JSON.parse( req.body.ids );
+    var obj_list = ids.map( function ( e ) {
+        return { '_id': new ObjectId( e ) };
+    });
+
+    // get objects
+    db_rows.find({ '$or': obj_list }, { 'comments': 1 }).toArray( function ( err, data ) {
+
+        var comments = data.map( function ( e ) {
+            return {
+                id: e._id,
+                count: !!e.comments ? e.comments.length : 0
+            };
+        });
+
+        res.writeHead( '200', {'Content-Type': 'text/plain'} );
+        res.end( JSON.stringify( comments ));
+    });
+};
+
+
 //////////  C O M M E N T  //////////
-exports.comment = function( user, id, text ) {
-    var user = user;
-    var row_id = id;
-    var text = text;
+exports.comment = function( req, res ) {
+    var user = req.session.user;
+    var row_id = req.body.id;
+    var text = req.body.text;
 
     var new_comment = { 'user': user, 'text': text };
 
@@ -143,6 +169,9 @@ exports.comment = function( user, id, text ) {
                             });
         });
     });
+
+    res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
+    res.end();
 };
 
 

@@ -1,12 +1,14 @@
       <br /><a href="/user/<%= user %>" class="button" style="float: left; font-weight: bold; margin-left: 10px;">&lt;&lt; Powrót do profilu użytkownika</a>
     
-      <form action="/page/0/search/" method="get" style="margin-left: 25px; float: left;">
+      <form action="/page/1/search/" method="get" style="margin-left: 25px; float: left;">
         <input type="text" name="what" placeholder="Co?" />
         <input type="text" name="where" placeholder="Gdzie?" />
         <input type="submit" value="Szukaj" />
       </form>
       
-      <h2 style="clear: both; margin-top: 0px; margin-left: 10px; color: #5b5b7b;">Rejestr zabytków: <u><%= collection %></u></h3>
+      <h2 style="clear: both; margin-top: 0px; margin-left: 10px; color: #5b5b7b;">
+        Rejestr zabytków: <u><%= collection %></u> &nbsp; Wszystkich wyników: <u><%= count %></u>
+      </h2>
       <table id="data-table">
         <thead>
           <tr>
@@ -74,7 +76,11 @@
       </table>
     <br />
     <% if( !!prev_page ) { %><a href="<%= prev_page %>">Poprzednia strona</a> <% } %>
-    <% if( !!prev_page && !!next_page ) { %> :: <% } %>
+    <% for( var i = 0; i < pagination.length; ++i ) { if( page !== (i+1) ) { %> 
+      &nbsp; <a href="<%= pagination[i] %>"><%= i+1 %></a>  &nbsp; 
+    <% } else { %>
+      &nbsp; <%= i+1 %> &nbsp; 
+    <% } } %>
     <% if( !!next_page ) { %><a href="<%= next_page %>">Następna strona</a> <% } %>
 
   <script src="/js/jquery-ui.js"></script>

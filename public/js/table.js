@@ -1,60 +1,65 @@
 (function () {
     var value;
-    var socket = io.connect('http://localhost:3030');
-
-    socket.on( 'update-comment', function ( data ) {
-        var row = $('#'+data.id);
-        var comment_count = row.find('.comment-count');
-        var number = parseInt( comment_count.html(), 10 );
-
-        comment_count.html( number + 1 ).css({ 'font-weight': 'bold' });
-
-        row.find('img').removeClass('empty');
-    });
-
-    socket.on( 'update-cell', function ( data ) {
-        $('#'+data.id).find('td[data-key='+data.key+']').html( data.value );
-    });
 
     $(document).ready(function() {
         makezebra();
         $('table').fixedtableheader();
-        setClickable();
+        set_clickable();
+
+        setInterval( function () {
+            var ids = $.map( $('#data-table').find('tbody > tr'), function ( e ) {
+                    return e.id;
+                });
+
+            $.post( '/check_new_comments/',
+                    { 'ids': JSON.stringify( ids ) },
+                    function ( received_data ) {
+                        var data = JSON.parse( received_data );
+                        data.forEach( function ( e ) {
+                            var comment = $('#'+e.id).find('.comment-count');
+                            var count = parseInt( comment.html() );
+
+                            if( e.count !== count ) {
+                                if( count === 0 ) {
+                                    comment.css('font-weight', 'bold')
+                                           .next().removeClass('empty');
+                                }
+                                comment.html( e.count );
+                            }
+                        });
+                    }
+            );
+        }, 5000 );
     });
 
-
     function makezebra() {
-        $('tbody>tr')
-            .each( function ( i ) {
-                    if( i % 2 === 0 ) {
-                        $(this).addClass( 'even' );
-            }
+        $('tbody > tr:even').each( function () {
+            $(this).addClass( 'even' );
         });
     }
 
-    function setClickable(){
-        $('.editable')
-            .dblclick( function( event ) {
-                addEditEvent( event, $(this));
-            });
+    function set_clickable(){
+        $('.editable').dblclick( function( event ) {
+            addEditEvent( event, $(this) );
+        });
     }
 
-    function addEditEvent( event, TdCell) {
+    function addEditEvent( event, td_cell) {
         if( $('#editing').length > 0 ) {
             confirmInput();
         }
-        value = TdCell.html( );
-        editInPlace( TdCell );
+        value = td_cell.html( );
+        editInPlace( td_cell );
     }
 
-    function editInPlace( TdCell ){
+    function editInPlace( td_cell ){
 
-        var input_width = TdCell.width();
+        var input_width = td_cell.width();
         var input = '<input type="text" id="editing" style="width: ' + input_width + 'px;" value="'+ value +'" />';
         var textinput= $(input);
 
-        TdCell.empty();
-        TdCell.html( textinput );
+        td_cell.empty();
+        td_cell.html( textinput );
         $('#editing').focus();
 
         // detect enter confirmation
@@ -67,10 +72,10 @@
         // detect esc cancel
         $(document).keyup( function( event ){
             if( event.keyCode === 27 ) {
-              TdCell.empty()
+              td_cell.empty()
                   .html( value )
                   .dblclick( function ( ev ) {
-                        addEditEvent( ev, TdCell);
+                        addEditEvent( ev, td_cell);
                   });
             }
 
@@ -80,20 +85,24 @@
     function confirmInput() {
         var input = $('#editing');
         var new_value = input.val();
-        var TdCell = input.parent();
+        var td_cell = input.parent();
         if( value !== new_value ) {
-            socket.emit( 'update_cell', {
-                id: TdCell.parent().attr('id'),
-                key: TdCell.attr('data-key'),
-                value: new_value,
+            $.ajax({
+                 url : '/update/',
+                 type : 'POST',
+                 data : {
+                     id: td_cell.parent().attr('id'),
+                     key: td_cell.attr('data-key'),
+                     value: new_value,
+                 }
             });
             value = new_value;
         }
 
-        TdCell.empty();
-        TdCell.html( value )
-        TdCell.dblclick( function( event ){
-            addEditEvent( event, TdCell);
+        td_cell.empty();
+        td_cell.html( value )
+        td_cell.dblclick( function( event ){
+            addEditEvent( event, td_cell);
         });
         $(document).unbind();
     }
@@ -140,13 +149,14 @@
 
         $('body').append( html.join('') );
         $('#add-comment').click( function () {
-            // socket code goes here
-            console.log( "CLIK" );
-            socket.emit( 'comment', {
+            $.ajax({
+              url: '/comment/',
+              type: 'POST',
+              data: {
                 id: $('textarea').attr('id'),
-                text: $('textarea').val()
+                 text: $('textarea').val()
+              }
             });
-
             $('#comments-panel').remove();
 
             var row = $('#'+received.id);
