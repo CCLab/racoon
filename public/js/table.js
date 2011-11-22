@@ -107,7 +107,17 @@
         $(document).unbind();
     }
 
-    $('img').hover(
+
+    $('#tools-icon').hover(
+        function () {
+            $(this).attr('src', '/img/tools_icon_hover.png' );
+        },
+        function () {
+            $(this).attr('src', '/img/tools_icon.png' );
+        }
+    );
+
+    $('tbody').find('img').hover(
         function () {
             $(this).attr('src', '/img/comments_over.png' );
         },
