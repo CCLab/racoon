@@ -38,6 +38,7 @@ exports.login = function ( req, res ) {
         else {
             // on successful login store user name in session
             req.session.user = user;
+            req.session.blocked = [];
             res.redirect( '/user/' + user );
             res.end();
         }
@@ -104,7 +105,8 @@ exports.register = function ( req, res ) {
             });
 
             // after successful creation, store user name in session
-            req.session.user = user
+            req.session.user = user;
+            req.session.blocked = [];
             // move to user page
             res.writeHead( 302, {
                 'Location': '/user/' + user

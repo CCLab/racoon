@@ -51,7 +51,7 @@
         </thead>
         <tbody>
           <% for( var i in data ) { %>   
-          <tr id="<%= data[i]['_id'] %>"<% if( data[i]['approved'] ) { %>class="approved"<% } %>>
+          <tr id="<%= data[i]['_id'] %>"<% if( data[i]['approved'] || data[i]['blocked'] ) { %>class="approved"<% } %>>
             <td style="width: 25px"><input type="checkbox" <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
             <td style="width: 50px">
               <% if( !!data[i]['comments'] ) { %>

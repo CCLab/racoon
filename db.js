@@ -1,6 +1,8 @@
 var url       = require('url');
 var _         = require('underscore');
 
+var history   = require('./history');
+
 var Mongolian = require('mongolian');
 var ObjectId  = require('mongolian').ObjectId;
 var mongo     = new Mongolian('91.227.40.36:8000');
@@ -17,6 +19,8 @@ exports.approved = function ( req, res ) {
 
     db_users.findOne({ user: user }, update_user_account );
     db_rows.findOne({'_id': new ObjectId( row_id ) }, mark_approved_object );
+
+    history.save_approval( user, row_id, set );
 
     res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
     res.end();
@@ -78,6 +82,7 @@ exports.update = function( req, res ) {
     var new_value = {};
     new_value[key] = val;
 
+    history.save_edit( req.session.user, row_id, key, val );
     db_rows.update({ '_id': new ObjectId( row_id ) }, { '$set': new_value });
 
     res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
