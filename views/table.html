@@ -51,8 +51,8 @@
         </thead>
         <tbody>
           <% for( var i in data ) { %>   
-          <tr id="<%= data[i]['_id'] %>"<% if( data[i]['approved'] || data[i]['blocked'] ) { %>class="approved"<% } %>>
-            <td style="width: 25px"><input type="checkbox" <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
+          <tr id="<%= data[i]['_id'] %>" class="<% if( data[i]['approved'] ) { %>approved <% } if( data[i]['blocked'] ) { %>blocked<% } %>">
+            <td style="width: 25px"><input type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true"<% } %> <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
             <td style="width: 50px">
               <% if( !!data[i]['comments'] ) { %>
               <span class="comment-count" style="font-size: 16px; margin-bottom: 5px; margin-right: 7px; font-weight: bold; color: #3b3b3b;"><%= data[i]['comments_count'] %></span>

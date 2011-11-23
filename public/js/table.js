@@ -39,7 +39,7 @@
     }
 
     function set_clickable(){
-        $('.editable').dblclick( function( event ) {
+        $('tr').not('.blocked').find('.editable').dblclick( function( event ) {
             addEditEvent( event, $(this) );
         });
     }

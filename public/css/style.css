@@ -60,7 +60,7 @@ td {
 }
 
 tbody > tr:hover {
-  background-color: #ddd;
+  background-color: #ccccdd;
 }
 
 .even {
@@ -88,6 +88,15 @@ input[type="submit"]:hover {
 }
 .approved {
   color: #999;
+}
+
+.blocked {
+  color: #bbb;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 #comments_list > li {
