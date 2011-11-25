@@ -8,6 +8,8 @@ var mongo     = new Mongolian('91.227.40.36:8000');
 var db_users  = mongo.db('racoon_db').collection('racoon_users');
 var db_cols   = mongo.db('racoon_db').collection('racoon_data');
 var db_meta   = mongo.db('racoon_db').collection('racoon_meta');
+var db_state  = mongo.db('racoon_db').collection('racoon_state');
+
 
 
 //////////  L O G I N  //////////
@@ -38,7 +40,6 @@ exports.login = function ( req, res ) {
         else {
             // on successful login store user name in session
             req.session.user = user;
-            req.session.blocked = [];
             res.redirect( '/user/' + user );
             res.end();
         }
@@ -106,7 +107,6 @@ exports.register = function ( req, res ) {
 
             // after successful creation, store user name in session
             req.session.user = user;
-            req.session.blocked = [];
             // move to user page
             res.writeHead( 302, {
                 'Location': '/user/' + user
@@ -161,4 +161,14 @@ exports.page = function ( req, res ) {
             });
         });
     });
+};
+
+
+exports.user_on = function( req, res ) {
+    var now = new Date();
+    db_state.update({ 'user': req.session.user }, { '$set': { 'ids': req.body.ids, 'timestamp': now }});
+
+    // do the db trick!
+    res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
+    res.end();
 };

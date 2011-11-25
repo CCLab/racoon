@@ -10,6 +10,13 @@
             var ids = $.map( $('#data-table').find('tbody > tr'), function ( e ) {
                     return e.id;
                 });
+            $.post( '/user_on/', { ids: ids } );
+        }, 30000 );
+
+        setInterval( function () {
+            var ids = $.map( $('#data-table').find('tbody > tr'), function ( e ) {
+                    return e.id;
+                });
 
             $.post( '/check_new_comments/',
                     { 'ids': JSON.stringify( ids ) },

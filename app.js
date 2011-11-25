@@ -52,7 +52,7 @@ app.get ('/error_login/', user.error_login );
 app.get ('/new_user/', user.new_user );
 app.post('/register/', user.register );
 app.get ('/user/:name', is_login, user.page );
-
+app.post('/user_on/', is_login, user.user_on );
 
 //////////////   S E A R C H   ///////////////
 app.get ('/page/:page/search/:poviat', is_login, search.poviat );
