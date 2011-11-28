@@ -2,6 +2,7 @@ var express   = require('express');
 var _         = require('underscore');
 var Mongolian = require('mongolian');
 var mongo     = new Mongolian('91.227.40.36:8000');
+var db_users  = mongo.db('racoon_db').collection('racoon_users');
 var url       = require('url');
 var limit     = 20;
 //var state     = require('./state3');
@@ -14,12 +15,13 @@ exports.poviat = function ( req, res ) {
     var page     = parseInt( req.params.page, 10 );
     var user     = req.session.user;
 
+    db_users.update({ 'user': user }, { '$set': { 'last_seen': req.url }});
 
     db_state.find({}).toArray( function ( err, data ) {
         var now = new Date();
 
         data.forEach( function ( e ) {
-            var time_diff = now.getTime() - e.timestamp.getTime();
+            var time_diff = !!e.timestamp ? now.getTime() - e.timestamp.getTime() : 0;
             if( time_diff > 90000 ) {
                 db_state.remove({ 'user': e.user });
             }
@@ -107,6 +109,10 @@ exports.general = function ( req, res ) {
     var user   = req.session.user;
 
     var query    = {};
+    var q_what, c_what;
+    var q_where, c_where;
+    var filt;
+
     var cols     = mongo.db('racoon_db').collection('racoon_data');
     var db_state = mongo.db('racoon_db').collection('racoon_state');
 
@@ -115,7 +121,7 @@ exports.general = function ( req, res ) {
             var now = new Date();
 
             data.forEach( function ( e ) {
-                var time_diff = now.getTime() - e.timestamp.getTime();
+                var time_diff = !!e.timestamp ? now.getTime() - e.timestamp.getTime() : 0;
                 if( time_diff > 90000 ) {
                     db_state.remove({ 'user': e.user });
                 }
@@ -198,6 +204,8 @@ exports.general = function ( req, res ) {
         });
     };
 
+    db_users.update({ 'user': user }, { '$set': { 'last_seen': req.url }});
+
     if( !!what && !where ) {
         query = {'$or': [
                     { 'okr_ob': new RegExp( what, 'i' ) },
@@ -217,93 +225,117 @@ exports.general = function ( req, res ) {
         render( query );
     }
     else if( !!what && !!where ) {
-        query = {'$or': [
+
+        q_where = {'$or': [
+                    { 'wojewodztwo': new RegExp( where, 'i' ) },
+                    { 'powiat': new RegExp( where, 'i' ) },
+                    { 'gmina': new RegExp( where, 'i' ) },
+                    { 'miejscowosc': new RegExp( where, 'i' ) },
+                  ]};
+        q_what  = {'$or': [
                     { 'okr_ob': new RegExp( what, 'i' ) },
                     { 'okr_zes': new RegExp( what, 'i' ) }
-                ]};
+                  ]};
 
-        db_state.find({}).toArray( function ( err, data ) {
-            var now = new Date();
+        cols.find( q_where ).count( function ( err, c_where ) {
+            cols.find( q_what ).count( function ( err, c_what ) {
+                if( q_where <= q_what ) {
+                    query = q_where;
+                    filt  = function ( e ) {
+                        var what_exp = new RegExp( what, 'i' );
 
-            data.forEach( function ( e ) {
-                var time_diff = now.getTime() - e.timestamp.getTime();
-                if( time_diff > 90000 ) {
-                    db_state.remove({ 'user': e.user });
+                        return !!what_exp.exec( e['okr_ob'] ) ||
+                               !!what_exp.exec( e['okr_zes'] );
+                    };
                 }
-            });
+                else {
+                    query = q_what;
+                    filt  = function ( e ) {
+                        var where_exp = new RegExp( where, 'i' );
 
-            cols.find( query ).toArray( function ( err, result ) {
-                // manage blocked rows
-                db_state.remove({ 'user': user }, function () {
-                    // gather all blocked ids
-                    db_state.find({}, {'ids': 1}).toArray( function( err, blocked_ids ) {
+                        return !!where_exp.exec( e['wojewodztwo'] ) ||
+                               !!where_exp.exec( e['powiat'] ) ||
+                               !!where_exp.exec( e['gmina'] ) ||
+                               !!where_exp.exec( e['miejscowosc'] );
+                    };
+                }
 
-                        var data = result.filter( function ( e ) {
-                            var where_exp = new RegExp( where, 'i' );
+                db_state.find({}).toArray( function ( err, data ) {
+                    var now = new Date();
 
-                            return !!where_exp.exec( e['wojewodztwo'] ) ||
-                                   !!where_exp.exec( e['powiat'] ) ||
-                                   !!where_exp.exec( e['gmina'] ) ||
-                                   !!where_exp.exec( e['miejscowosc'] );
-                        });
-
-                        var ids = data.map( function ( e ) {
-                            return e._id+'';
-                        });
-                        var all_blocked = _.uniq( _.flatten( _.pluck( blocked_ids, 'ids' ) ) );
-                        var blocked = _.intersection( ids, all_blocked );
-
-                        // save new blocked ids in db
-                        db_state.insert({
-                            'user': user,
-                            'ids': _.difference( ids, all_blocked )
-                        });
-
-                        var count = data.length;
-                        var collection_name = where + " :: " + what;
-                        var prev_page = !!( page-1 ) && !!data.length ?
-                                        "/page/" + ( page - 1 ) + "/search/" + search : undefined;
-                        var next_page = ( page-1 ) * limit >= count || data.length < limit ?
-                                        undefined : "/page/" + ( page + 1 ) + "/search/" + search;
-
-                        var i, pagination = [];
-                        for( i = 1; i <= Math.ceil( count / limit ); i++ ) {
-                            pagination.push( "/page/" + i + "/search/" + search );
+                    data.forEach( function ( e ) {
+                        var time_diff = !!e.timestamp ? now.getTime() - e.timestamp.getTime() : 0;
+                        if( time_diff > 90000 ) {
+                            db_state.remove({ 'user': e.user });
                         }
+                    });
 
-                        data = data.slice( (page-1) * limit, page*limit );
-                        data.forEach( function ( e ) {
-                            blocked.forEach( function ( b ) {
-                                if( e._id+'' === b ) {
-                                    e.blocked = true;
+                    cols.find( query ).toArray( function ( err, result ) {
+                        // manage blocked rows
+                        db_state.remove({ 'user': user }, function () {
+                            // gather all blocked ids
+                            db_state.find({}, {'ids': 1}).toArray( function( err, blocked_ids ) {
+
+                                var data = result.filter( filt );
+                                var ids = data.map( function ( e ) {
+                                    return e._id+'';
+                                });
+                                var all_blocked = _.uniq( _.flatten( _.pluck( blocked_ids, 'ids' ) ) );
+                                var blocked = _.intersection( ids, all_blocked );
+
+                                // save new blocked ids in db
+                                db_state.insert({
+                                    'user': user,
+                                    'ids': _.difference( ids, all_blocked )
+                                });
+
+                                var count = data.length;
+                                var collection_name = where + " :: " + what;
+                                var prev_page = !!( page-1 ) && !!data.length ?
+                                                "/page/" + ( page - 1 ) + "/search/" + search : undefined;
+                                var next_page = ( page-1 ) * limit >= count || data.length < limit ?
+                                                undefined : "/page/" + ( page + 1 ) + "/search/" + search;
+
+                                var i, pagination = [];
+                                for( i = 1; i <= Math.ceil( count / limit ); i++ ) {
+                                    pagination.push( "/page/" + i + "/search/" + search );
                                 }
+
+                                data = data.slice( (page-1) * limit, page*limit );
+                                data.forEach( function ( e ) {
+                                    blocked.forEach( function ( b ) {
+                                        if( e._id+'' === b ) {
+                                            e.blocked = true;
+                                        }
+                                    });
+                                });
+
+                                data = data.map( function ( e ) {
+                                                e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
+                                                return e;
+                                            })
+                                            .sort( function ( a, b ) {
+                                               var a_id = a['_id']+'';
+                                               var b_id = b['_id']+'';
+
+                                               if( a_id > b_id ) return 1;
+                                               if( a_id < b_id ) return -1;
+
+                                               return 0;
+                                           });
+
+                                res.render( 'table.html', {
+                                    title: 'Racoon',
+                                    data: data,
+                                    user: req.session.user,
+                                    collection: collection_name,
+                                    count: count,
+                                    prev_page: prev_page,
+                                    next_page: next_page,
+                                    pagination: pagination,
+                                    page: page
+                                });
                             });
-                        });
-
-                        data = data.map( function ( e ) {
-                                        e['comments_count'] = !!e['comments'] ? e['comments'].length : undefined;
-                                        return e;
-                                    })
-                                    .sort( function ( a, b ) {
-                                       var a_id = a['_id']+'';
-                                       var b_id = b['_id']+'';
-
-                                       if( a_id > b_id ) return 1;
-                                       if( a_id < b_id ) return -1;
-
-                                       return 0;
-                                   });
-
-                        res.render( 'table.html', {
-                            title: 'Racoon',
-                            data: data,
-                            user: req.session.user,
-                            collection: collection_name,
-                            count: count,
-                            prev_page: prev_page,
-                            next_page: next_page,
-                            pagination: pagination,
-                            page: page
                         });
                     });
                 });

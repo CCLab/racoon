@@ -3,7 +3,7 @@
   <%= user %>
 </h1>
 <div style="float: right; padding: 20px 0px;">
-  <img src="/img/logout_icon.png" alt="Logout" />
+  <a href="/logout/"><img id="logout-icon" src="/img/logout_icon.png" alt="Logout" /></a>
 </div>
 
 <br class="clear" />
@@ -11,10 +11,12 @@
 
 <hr />
 <!--  L E F T   P A N E L  -->
+<% if( !!last_seen ) { %>
 <h2>Wróć do ostatnio edytowanych</h2>
-<a class="button">Woj. dolnośląskie > pow. m. Wrocław &nbsp; <b>>></b></a>
-
+<a href="<%= last_seen %>" class="button">Wróć do ostatniego widoku &nbsp; <b>>></b></a>
 <div style="border-top: 1px solid #ccc; margin-top: 30px;"></div>
+<% } %>
+
 <h2>Wyszukaj interesujących cię danych</h2>
 <form action="/page/1/search/" method="get">
   <input type="text" name="what" placeholder="Co?" />

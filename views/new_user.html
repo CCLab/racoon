@@ -2,9 +2,9 @@
 <h2 id="signup-alert" style="color: #8b8b8b; width: 500px;"><% if( error === 'login_taken' ) { %>Identyfikator zajęty - spróbuj inny<% } else { %>Podaj identyfikator, którego chciałbyś używać w czyściwie.<% } %></h2>
 <form action="/register/" method="post" id="sign-up-form">
   <input id="signup-user" type="text" name="user" placeholder="identyfikator" /><br />
-  <input type="text" id="signup-email" name="signup-email" placeholder="email (opcjonalnie)" style="border-color: #ccc;" /><br />
+  <input type="text" id="signup-email" name="email" placeholder="email (opcjonalnie)" style="border-color: #ccc;" /><br />
   <input id="signup-pass" type="password" name="pass" placeholder="hasło" /><br />
-  <input id="signup-pas2" type="password" name="pass-confirm" placeholder="potwierdź hasło" /><br /><br />
+  <input id="signup-pas2" type="password" name="confirm" placeholder="potwierdź hasło" /><br /><br />
   <input type="submit" id="sign-up" value="Załóż konto" />
 </form>
 

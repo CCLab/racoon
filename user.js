@@ -49,9 +49,12 @@ exports.login = function ( req, res ) {
 
 //////////  L O G O U T  //////////
 exports.logout = function ( req, res ) {
-    delete req.session.user;
+    var user = req.session.user;
 
-    res.redirect('/');
+    db_state.remove({ 'user': user }, function () {
+        delete user;
+        res.redirect('/');
+    });
 };
 
 
@@ -80,8 +83,9 @@ exports.new_user = function ( req, res ) {
 //////////  R E G I S T E R  //////////
 exports.register = function ( req, res ) {
     // form data
-    var user = req.body.user;
-    var md5_pass  = crypto.createHash('md5');
+    var user  = req.body.user;
+    var email = req.body.email;
+    var md5_pass = crypto.createHash('md5');
     md5_pass.update( req.body.pass );
 
     // check if the user doesn't exist before creating a new one
@@ -101,6 +105,7 @@ exports.register = function ( req, res ) {
             // add user to db
             db_users.insert({
                 user: user,
+                email: email,
                 pass: md5_pass.digest('hex'),
                 rows: []
             });
@@ -150,6 +155,7 @@ exports.page = function ( req, res ) {
                             res.render( 'user.html', {
                                 title: 'Strona użytkownika: ' + user,
                                 user: user,
+                                last_seen: db_user.last_seen,
                                 rows_count: !!obj_list.length ? list.length : 0,
                                 rows_list: !!obj_list.length ? list : [],
                                 comments_total: comments_list.length,

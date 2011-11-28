@@ -36,8 +36,19 @@ li {
   margin-bottom: 3px;
 }
 
-img:hover {
+td > img:hover, #tools-icon:hover  {
   cursor: pointer;
+}
+
+#logout-icon {
+  padding: 3px;
+  border: 2px solid #e3e3e3;
+}
+#logout-icon:hover {
+  cursor: pointer;
+  padding: 3px;
+  border: 2px solid #00b7ff;
+  border-radius: 3px;
 }
 
 #comments-panel {
