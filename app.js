@@ -6,6 +6,7 @@ var MemoryStore  = express.session.MemoryStore,
 var user   = require('./user');
 var search = require('./search');
 var db     = require('./db');
+var expert = require('./expert');
 
 var app = module.exports = express.createServer();
 
@@ -41,7 +42,7 @@ app.configure('production', function(){
 app.get( '/', function ( req, res ) {
   delete req.session.user;
   res.render( 'index.html', {
-    title: 'Szop dano-pracz!'
+    title: 'Witaj w Racoonie!'
   });
 });
 
@@ -65,6 +66,11 @@ app.post('/update/', db.update );
 app.get ('/get_comments/', db.get_comments );
 app.post('/comment/', db.comment );
 app.post('/check_new_comments/', db.check_new_comments );
+
+//////////////   E X P E R T  ///////////////
+app.get ('/expert/', is_login, expert.page );
+app.post('/expert/answer/', is_login, expert.answer );
+app.post('/expert/check_updates/', is_login, expert.check_updates );
 
 //////////////   M I D D L E W A R E   //////////////
 function is_login( req, res, next ) {

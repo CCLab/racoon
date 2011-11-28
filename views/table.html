@@ -13,6 +13,7 @@
             <input type="text" name="where" placeholder="Gdzie?" />
             <input type="submit" value="Szukaj" />
           </form>
+          <h2>Przeglądaj</h2>
         </div>
       
         <table id="data-table">
@@ -24,7 +25,7 @@
               <td class="relic">
                 <!-- Comments --> 
               </td>
-              <td class="relic">
+              <td style="border-left: 2px solid #000;" class="relic">
                 Miejscowość
               </td>
               <td class="relic">
@@ -67,7 +68,7 @@
                 <img class="empty" src="/img/comments.png" alt="K" />
                 <% } %>
               </td>
-              <td class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
+              <td style="border-left: 2px solid #000;" class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
               <td class="editable" data-key="ulica"><%= data[i]['ulica'] %></td>
               <td class="editable" data-key="wojewodztwo"><%= data[i]['wojewodztwo'] %></td>
               <td class="editable" data-key="powiat"><%= data[i]['powiat'] %></td>
