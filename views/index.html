@@ -1,9 +1,19 @@
 <h1><%= title %></h1>
 <h2 style="color: #8b8b8b; width: 500px;">Musisz się zalogować, żeby rozpocząć edytowanie danych.</h2>
-<form action="/login/" method="post">
-  <input type="text" name="user" placeholder="identyfikator" />
-  <input type="password" name="pass" placeholder="hasło" /><br /><br />
+<form id="login" action="/login/" method="post">
+  <input id="login-user" type="text" name="user" placeholder="identyfikator" />
+  <input id="login-pass" type="password" name="pass" placeholder="hasło" /><br /><br />
   <input type="submit" value="Zaloguj" class="button" style="background-color: #f3f3f3" />
 
 <a href="/new_user/" class="button">Załóż nowe konto</a>
 </form>
+<script type="text/javascript">
+(function () {
+  $('#login').submit( function () {
+    if( !($('#login-user').val()) ) {
+      $('h2').html( 'Koniecznie podaj identyfikator!' ).css('color', '#AB5B5B');
+      return false;
+    }
+  });
+})();
+</script>

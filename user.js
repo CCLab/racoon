@@ -15,7 +15,7 @@ var db_state  = mongo.db('racoon_db').collection('racoon_state');
 //////////  L O G I N  //////////
 exports.login = function ( req, res ) {
     var user = req.body.user;
-    var md5_pass  = crypto.createHash('md5');
+    var md5_pass = crypto.createHash('md5');
     md5_pass.update( req.body.pass );
     // clear session user-login data
     delete req.session.user;

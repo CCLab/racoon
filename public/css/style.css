@@ -21,6 +21,7 @@ body {
 }
 
 #panel {
+    overflow: visible;
     padding: 5px 10px;
     clear: both;
     background-color: #E3E3E3;
@@ -114,4 +115,23 @@ input[type="submit"]:hover {
 
 .clear {
   clear: both;
+}
+
+#table-container {
+  overflow: visible;
+  clear: both;
+  position: relative;
+}
+
+#tools-popup {
+  overflow: visible;
+  position: absolute;
+  top: 0px;
+  right:0px;
+  background-color: #fff;
+  width: 300px;
+  height: 300px;
+  border: 2px solid #5b5b5b;
+  border-radius: 5px;
+  padding: 10px;
 }

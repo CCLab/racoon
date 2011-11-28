@@ -2,6 +2,10 @@
     var value;
 
     $(document).ready(function() {
+        $('#tools-popup').hide();
+        $('#tools-icon').click( function () {
+            $('#tools-popup').toggle();
+        });
         makezebra();
         $('table').fixedtableheader();
         set_clickable();
