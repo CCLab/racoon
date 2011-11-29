@@ -18,7 +18,7 @@ exports.page = function ( req, res ) {
             e.time = ts.getHours() + ":" + ts.getMinutes();
             e.date = ts.getDate() + "-" + ts.getMonth() + "-" + ts.getFullYear();
         });
-        res.render( 'expert.html', {
+        res.render( 'expert2.html', {
             user: req.session.user,
             title: "Panel eksperta",
             count: data.length,

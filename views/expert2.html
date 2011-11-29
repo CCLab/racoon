@@ -1,0 +1,109 @@
+<h1>
+  Pytania do eksperta
+</h1>
+
+<hr />
+
+<% for( var i in data ) { %>
+  <div id="<%= data[i]._id %>">
+    <!--  T I M E ,   D A T E   A N D   U S E R   H E A D E R  -->
+    <h2 data-id="<%= data[i]._id %>"><%= data[i].time %>, <%= data[i].date %> :: <%= data[i].user %></h2>
+
+    <!--  L E F T   P A N E L   -   Q U E S T I O N  -->
+    <div style="float: left; width: 49%;">
+      <b>Pytanie:</b>
+      <p style="margin-top: 0px;"><%= data[i].q %></p>
+    </div>
+    
+    <!--  R I G H T   P A N E L   -   A N S W E R  -->
+    <div id="right-<%= data[i]._id %>" style="float: right; width: 49%;">
+      <b>Odpowiedź:</b>
+      <% if( !!data[i].a ) { %>
+        <p style="margin-top: 0px;"><%= data[i].a %></p>
+      <% } else { %>
+        <textarea data-id="<%= data[i]._id %>" style="width: 100%; border: 1px solid #ccc; border-radius: 3px; padding: 5px; font-size: 11px;" rows="5"></textarea>
+      <% } %>
+    </div>
+    <br style="clear: both"/>
+    <div id="<%= data[i]._id %>-buttons">
+      <div data-id="<%= data[i]._id %>" class="button show-table" style="width: 100px; margin-top: 10px; float: left; text-align: center;">Pokaż tabelę</div>
+      <% if( !!data[i].a ) { %>
+        <div data-id="<%= data[i]._id %>" class="button edit" style="width: 100px; margin-top: 10px; float: right; text-align: center;">Edytuj odpowiedź</div>
+      <% } else { %>
+        <div data-id="<%= data[i]._id %>" class="button submit" style="width: 100px; margin-top: 2px; float: left; text-align: center;">Odpowiedz</div>
+      <% } %>
+    </div>
+    <br style="clear: both"/>
+    <div style="border-top: 1px solid #ccc; margin-top: 10px;"></div>
+  </div>
+<% } %>
+<script type="text/javascript">
+(function () {
+
+  setInterval( function () {
+    if( $(':focus').length === 0 ) {
+      var ids = $.map( $('h2'), function ( e ) {
+              return $(e).data('id');
+          });
+      $.post( '/expert/check_updates/', { ids: ids }, new_questions );
+    }
+  }, 3000 );
+
+  $('.submit').click( answer );
+  $('.edit').click( edit );
+
+  function new_questions( received ) {
+//    var i;
+//    var data = JSON.parse( received );
+//    if( !data.length ) {
+//      return;
+//    }
+//    var que, html = [];
+//    console.log( data );
+//    for( i = 0; i < data.length; ++i ) {
+//      html.push( '<h2 data-id="', data[i]._id, '">', data[i].timestamp, ' :: ', data[i].user, '</h2>' );
+//      html.push( '<div style="float: left; width: 49%;"><b>Pytanie:</b><br />', data[i].q, '</div>' );
+//      html.push( '<div id="right-', data[i]._id, '" style="float: right; width: 49%;">' );
+//      html.push( '<b>Odpowiedź:</b>' );
+//      html.push( '<textarea id="', data[i]._id, '" style="width: 100%; border: 1px solid #ccc; border-radius: 3px; padding: 5px; font-size: 11px;" rows="5"></textarea>' );
+//      html.push( '<div data-id="', data[i]._id, '" class="button submit" style="width: 100px; margin-top: 2px; float: left; text-align: center;">Odpowiedz</div>' );
+//      html.push( '</div><br style="clear: both"/><div style="border-top: 1px solid #ccc; margin-top: 10px;"></div>' );
+//    }
+//    que = $( html.join('') );
+//    console.log( que );
+//    $('hr').after( que ).find('.submit').click( answer );
+  }
+
+  function answer() {
+    var ans, html = [];
+    var id = $(this).attr('data-id');
+    var a  = $('#'+id).val();
+
+    if( !a ) {
+      return;
+    }
+    $.post( '/expert/answer/', { answer: a, id: id } );
+
+    html.push( '<b>Odpowiedź:</b>' );
+    html.push( '<p style="margin-top: 0px;">', a, '</p>' );
+    html.push( '<div data-id="', id, '" class="button edit" style="width: 100px; margin-top: 10px; float: right; text-align: center;">' );
+    html.push( 'Edytuj odpowiedź</div>' );
+
+    ans = $( html.join('') );
+    $('#right-'+id).empty().append( ans ).find('.edit').click( edit );
+  }
+
+  function edit() {
+    var ed, html = [];
+    var id = $(this).attr('data-id');
+    var a  = $('#right-'+id).find('p').html();
+
+    html.push( '<b>Odpowiedź:</b>' );
+    html.push( '<textarea id="', id, '" style="width: 100%; border: 1px solid #ccc; border-radius: 3px; padding: 5px; font-size: 11px;" rows="5">', a, '</textarea>' );
+    html.push( '<div data-id="', id, '" class="button submit" style="width: 100px; margin-top: 2px; float: left; text-align: center;">Odpowiedz</div>' );
+
+    ed = $( html.join( '' ) );
+    $('#right-'+id).empty().append( ed ).find('.submit').click( answer );
+  }
+})();
+</script>
