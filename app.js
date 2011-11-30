@@ -68,13 +68,23 @@ app.post('/comment/', db.comment );
 app.post('/check_new_comments/', db.check_new_comments );
 
 //////////////   E X P E R T  ///////////////
-app.get ('/expert/', is_login, expert.page );
-app.post('/expert/answer/', is_login, expert.answer );
-app.post('/expert/check_updates/', is_login, expert.check_updates );
+app.get ('/expert/', is_expert, expert.page );
+app.post('/expert/answer/', is_expert, expert.answer );
+app.post('/expert/check_updates/', is_expert, expert.check_updates );
+app.post('/expert/get_rows/', is_expert, expert.get_rows );
 
 //////////////   M I D D L E W A R E   //////////////
 function is_login( req, res, next ) {
     if( !req.session.user ) {
+        res.redirect( '/' );
+    }
+    else {
+        next();
+    }
+}
+
+function is_expert( req, res, next ) {
+    if( !req.session.user || req.session.user !== 'trzewiczek' ) {
         res.redirect( '/' );
     }
     else {

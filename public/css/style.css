@@ -6,6 +6,7 @@ body {
   width: 960px;
   margin: 0 auto;
   color: #1f1f1f;
+  position: relative;
 }
 
 #application {
@@ -48,6 +49,11 @@ table {
     border-collapse: collapse;
 }
 
+tbody > tr:hover {
+  background-color: #ccccdd;
+}
+
+
 thead > tr, #fixedtableheader0 > tbody > tr  {
     background: black;
     color: white;
@@ -60,9 +66,6 @@ td {
     border-collapse: collapse;
 }
 
-tbody > tr:hover {
-  background-color: #ccccdd;
-}
 
 .even {
     background-color: #EEE;
@@ -129,9 +132,46 @@ input[type="submit"]:hover {
   top: 0px;
   right:0px;
   background-color: #fff;
-  width: 300px;
+  width: 666px;
   min-height: 300px;
   border: 2px solid #5b5b5b;
   border-radius: 5px;
   padding: 10px;
+}
+
+#expert-table-popup {
+  position: absolute;
+  background-color: #8b8b8b;
+  padding: 10px;
+  border: 3px solid #3b3b3b;
+  border-radius: 5px;
+}
+
+.tab {
+  float: left;
+  padding: 5px 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px 5px 0px 0px;
+  margin: 0px;
+  margin-right: 5px;
+}
+
+.tab:hover {
+  background-color: #eee;
+  cursor: pointer;
+}
+.tab.active {
+  background-color: #ccc;
+}
+.tab.active:hover {
+  background-color: #ccc;
+  cursor: default;
+}
+
+.tools-panel {
+  clear: both;
+  overflow: auto;
+  padding: 25px;
+  background-color: #ccc;
 }

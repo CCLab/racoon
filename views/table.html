@@ -7,15 +7,40 @@
       <img id="tools-icon" src="/img/tools_icon.png" alt="Narzędzia" style="float: right;"/>
       <div id="table-container">
         <div id="tools-popup">
-          <h2>Szukaj</h2>
-          <form action="/page/1/search/" method="get" style="margin-left: 13px; float: left;">
-            <input type="text" name="what" placeholder="Co?" />
-            <input type="text" name="where" placeholder="Gdzie?" />
-            <input type="submit" value="Szukaj" />
-          </form>
-          <h2>Przeglądaj</h2>
+          <header style="height: 48px">
+            <img style="float: left; vertical-align: middle; margin-top: 12px; margin-right: 10px;" src="/img/white_user_icon.png" alt="" />
+            <h1 style="vertical-align: top; float: left; color: #ccc; padding: 0px; margin: 0px;"><%= user %></h1>
+            <a href="/logout/"><img id="logout-icon" src="/img/logout_icon.png" alt="Logout" style="vertical-align: middle; float: left; margin-top: 5px; margin-left: 10px;" /></a>
+          </header>
+          <div style="clear: both">
+            <h2 class="tab active">Przeglądaj</h2>
+            <h2 class="tab">Odpowiedzi</h2>
+            <h2 class="tab">Komentarze</h2>
+          </div>
+          <div id="tools-browse" class="tools-panel active">
+            <div style="float: left; width: 49%">
+              <h2>Przeglądaj</h2>
+              <table id="tools-browser" style="width: 100%; border: 0px;">
+              </table>
+            </div>
+            <div style="float: right; width: 49%">
+              <h2>Szukaj</h2>
+              <form action="/page/1/search/" method="get" style="margin-left: 13px; float: left;">
+                <input type="text" name="what" placeholder="Co?" />
+                <input type="text" name="where" placeholder="Gdzie?" />
+                <input type="submit" value="Szukaj" />
+              </form>
+            </div>
+          </div>
+          <div id="tools-expert" class="tools-panel">
+            <h2>Pytania do eksperta</h2>
+          </div>
+          <div id="tools-comments" class="tools-panel">
+            <h2>Ostatnie komentarze</h2>
+          </div>
         </div>
       
+        <!--  D A T A   T A B L E  -->
         <table id="data-table">
           <thead>
             <tr>
@@ -93,7 +118,20 @@
 
   <script src="/js/jquery-ui.js"></script>
   <script src="/js/jquery.fixedtableheader-1-0-2.min.js"> </script>
-  <script src="/js/table.js"> </script>
+  <script src="/js/table.js"></script>
+  <script type="text/javascript">
+    (function () {
+      $('.tools-panel').not('.active').hide();
+      $(window).scroll( function () {
+        var scroll = $(window).scrollTop();
+        var pos = $('#tools-popup').offset().top;
+        
+        if( pos !== 0 && scroll > pos ) {
+          $('#tools-popup').offset({ top: scroll });
+        }
+      }); 
+    })();
+  </script>
   <style type="text/css">
     body {
       width: 100%;

@@ -47,45 +47,6 @@
 <% } %>
 </table>
 
-
-
-<!--  R I G T H   P A N E L  -->
-<!--<div style="float: right; width: 400px;">
-<% if( rows_count === 0 ) { %>
-  <h2>Jeszcze nie ma twoich edycji - czas zacząć!!</h2>
-<% } else { %>
-  <h2>Dotychczas poprawiłeś <span style="text-decoration: underline;"><%= rows_count %></span> wierszy.</h2> 
-  <h3>Ostatnio poprawione to:</h2>
-  <ul id="approved_rows">
-    <% var limit = rows_list.length < 10 ? rows_list.length : 10; for( var i = 1; i <= limit; ++i ) { %>
-      <li><%= rows_list[rows_list.length-i] %></li>
-    <% } %>
-  </ul>
-<% } %>
-
-<hr />
-
-<% if( comments_count === 0 ) { %>
-  <h2>Nic nie zostało przez ciebie skomentowane...</h2> 
-<% } else { %>
-  <h2>Twoje komentarze:</h2> 
-  <ul id="comments_list">
-    <% for( var i in comments_list ) { %>
-    <li data-id="<%= comments_list[i]['_id'] %>" style="padding: 8px 5px; border-radius: 5px;">
-      <p style="margin: 0px 0px; margin-bottom: 3px;padding: 3px 2px; color: #333; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;">
-        <%= comments_count[i] %> <span style="margin: 0px 5px;"></span> 
-        Woj. <%= comments_list[i]['wojewodztwo'] %> > pow. <%= comments_list[i]['powiat'] %> <span style="margin: 0px 5px;"></span> 
-        <%= comments_list[i]['miejscowosc'] %> | <%= comments_list[i]['okr_ob'] %> 
-      </p>
-      <p style="margin: -3px 0px; padding: 3px 2px; padding-left: 5px; background-color: #bbb">
-      <%= comments_list[i]['comments'][comments_count[i]-1]['text'] %>
-      </p>
-    </li>
-    <% } %>
-  </ul>
-<% } %>
-</div>
--->
 <script type="text/javascript">
   $('.poviats').hide();
 

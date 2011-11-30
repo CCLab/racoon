@@ -6,7 +6,7 @@ var crypto       = require('crypto');
 var Mongolian = require('mongolian');
 var mongo     = new Mongolian('91.227.40.36:8000');
 var ObjectId  = require('mongolian').ObjectId;
-var db_cols   = mongo.db('racoon_db').collection('racoon_data');
+var db_data   = mongo.db('racoon_db').collection('racoon_data');
 var db_expert = mongo.db('racoon_db').collection('racoon_expert');
 
 
@@ -15,7 +15,8 @@ exports.page = function ( req, res ) {
     db_expert.find().sort({ 'timestamp': -1 }).toArray( function ( err, data ) {
         data.forEach( function ( e ) {
             var ts = e.timestamp;
-            e.time = ts.getHours() + ":" + ts.getMinutes();
+            var mins = ts.getMinutes()+"";
+            e.time = ts.getHours() + ":" + ( mins.length === 1 ? '0'+mins : mins );
             e.date = ts.getDate() + "-" + ts.getMonth() + "-" + ts.getFullYear();
         });
         res.render( 'expert2.html', {
@@ -31,7 +32,6 @@ exports.answer = function ( req, res ) {
     var ans = req.body.answer;
     var id  = ObjectId( req.body.id );
 
-    console.log( id );
     db_expert.update({ '_id': id }, { '$set': { 'a': ans }});
 
     res.writeHead( '200', {'Content-Type': 'text/plain'} );
@@ -44,8 +44,34 @@ exports.check_updates = function ( req, res ) {
     });
 
     db_expert.find({ '$nor': ids }).sort({ 'timestamp': -1 }).toArray( function ( err, data ) {
+        data.forEach( function ( e ) {
+            var ts = e.timestamp;
+            var mins = ts.getMinutes()+"";
+            e.time = ts.getHours() + ":" + ( mins.length === 1 ? '0'+mins : mins );
+            e.date = ts.getDate() + "-" + ts.getMonth() + "-" + ts.getFullYear();
+        });
+
         res.writeHead( '200', {'Content-Type': 'text/plain'} );
         res.end( JSON.stringify( data ) );
+    });
+};
+
+exports.get_rows = function ( req, res ) {
+    var id = req.body.id
+
+    db_expert.findOne({ '_id': ObjectId(id) }, { ids: 1 }, function ( err, data ) {
+        var ids = data.ids.map( function ( e ) {
+            return { '_id': ObjectId( e ) };
+        });
+        db_data.find({ '$or': ids }).sort({ '_id': 1 }).toArray( function ( err, rows ) {
+            var result = {
+                rows: rows,
+                id: id
+            };
+
+            res.writeHead( '200', {'Content-Type': 'text/plain'} );
+            res.end( JSON.stringify( result ) );
+        });
     });
 };
 

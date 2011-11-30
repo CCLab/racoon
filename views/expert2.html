@@ -5,7 +5,7 @@
 <hr />
 
 <% for( var i in data ) { %>
-  <div id="<%= data[i]._id %>">
+  <div id="<%= data[i]._id %>" class="question-holder">
     <!--  T I M E ,   D A T E   A N D   U S E R   H E A D E R  -->
     <h2 data-id="<%= data[i]._id %>"><%= data[i].time %>, <%= data[i].date %> :: <%= data[i].user %></h2>
 
@@ -25,12 +25,14 @@
       <% } %>
     </div>
     <br style="clear: both"/>
-    <div id="<%= data[i]._id %>-buttons">
-      <div data-id="<%= data[i]._id %>" class="button show-table" style="width: 100px; margin-top: 10px; float: left; text-align: center;">Pokaż tabelę</div>
+    <div id="buttons-<%= data[i]._id %>">
+      <% if( data[i].ids.length !== 0 ) { %>
+        <div data-id="<%= data[i]._id %>" class="button show-table" style="width: 100px; margin-top: 10px; float: left; text-align: center;">Pokaż tabelę</div>
+      <% } %>
       <% if( !!data[i].a ) { %>
         <div data-id="<%= data[i]._id %>" class="button edit" style="width: 100px; margin-top: 10px; float: right; text-align: center;">Edytuj odpowiedź</div>
       <% } else { %>
-        <div data-id="<%= data[i]._id %>" class="button submit" style="width: 100px; margin-top: 2px; float: left; text-align: center;">Odpowiedz</div>
+        <div data-id="<%= data[i]._id %>" class="button submit" style="width: 100px; margin-top: 10px; float: right; text-align: center;">Odpowiedz</div>
       <% } %>
     </div>
     <br style="clear: both"/>
@@ -39,6 +41,8 @@
 <% } %>
 <script type="text/javascript">
 (function () {
+
+  $('body').css('margin-bottom', '30px');
 
   setInterval( function () {
     if( $(':focus').length === 0 ) {
@@ -51,33 +55,52 @@
 
   $('.submit').click( answer );
   $('.edit').click( edit );
+  $('.show-table').click( get_rows );
+
 
   function new_questions( received ) {
-//    var i;
-//    var data = JSON.parse( received );
-//    if( !data.length ) {
-//      return;
-//    }
-//    var que, html = [];
-//    console.log( data );
-//    for( i = 0; i < data.length; ++i ) {
-//      html.push( '<h2 data-id="', data[i]._id, '">', data[i].timestamp, ' :: ', data[i].user, '</h2>' );
-//      html.push( '<div style="float: left; width: 49%;"><b>Pytanie:</b><br />', data[i].q, '</div>' );
-//      html.push( '<div id="right-', data[i]._id, '" style="float: right; width: 49%;">' );
-//      html.push( '<b>Odpowiedź:</b>' );
-//      html.push( '<textarea id="', data[i]._id, '" style="width: 100%; border: 1px solid #ccc; border-radius: 3px; padding: 5px; font-size: 11px;" rows="5"></textarea>' );
-//      html.push( '<div data-id="', data[i]._id, '" class="button submit" style="width: 100px; margin-top: 2px; float: left; text-align: center;">Odpowiedz</div>' );
-//      html.push( '</div><br style="clear: both"/><div style="border-top: 1px solid #ccc; margin-top: 10px;"></div>' );
-//    }
-//    que = $( html.join('') );
-//    console.log( que );
-//    $('hr').after( que ).find('.submit').click( answer );
+    var i;
+    var elem, html;
+    var data = JSON.parse( received );
+    if( !data.length ) {
+      return;
+    }
+
+    for( i = 0; i < data.length; ++i ) {
+      html = [];
+      html.push( '<div id="', data[i]._id, '" class="question-holder">' );
+      html.push( '<h2 data-id="', data[i]._id, '">', data[i].time, ', ', data[i].date, ' :: ', data[i].user, '</h2>' );
+      html.push( '<div style="float: left; width: 49%;">' );
+      html.push( '<b>Pytanie:</b>' );
+      html.push( '<p style="margin-top: 0px;">', data[i].q, '</p>' );
+      html.push( '</div>' );
+      html.push( '<div id="right-', data[i]._id, '" style="float: right; width: 49%;">' );
+      html.push( '<b>Odpowiedź:</b>' );
+      html.push( '<textarea data-id="', data[i]._id, '" style="width: 100%; border: 1px solid #ccc; border-radius: 3px; padding: 5px; font-size: 11px;" rows="5"></textarea>' );
+      html.push( '</div>' );
+      html.push( '<br style="clear: both"/>' );
+      html.push( '<div id="buttons-', data[i]._id, '">' );
+      if( data[i].ids.length !== 0 ) {
+        html.push( '<div data-id="', data[i]._id, '" class="button show-table" style="width: 100px; margin-top: 10px; float: left; text-align: center;">Pokaż tabelę</div>' );
+      }
+      html.push( '<div data-id="', data[i]._id, '" class="button submit" style="width: 100px; margin-top: 10px; float: right; text-align: center;">Odpowiedz</div>' );
+      html.push( '</div>' );
+      html.push( '<br style="clear: both"/>' );
+      html.push( '<div style="border-top: 1px solid #ccc; margin-top: 10px;"></div>' );
+      html.push( '</div>' );
+
+      elem = $( html.join('') );
+      $('hr').after( elem );
+      $('#'+data[i]._id).find('.submit').click( answer ).end()
+                        .find('.show-table').click( get_rows );
+    }
+
   }
 
   function answer() {
-    var ans, html = [];
+    var elem, html = [];
     var id = $(this).attr('data-id');
-    var a  = $('#'+id).val();
+    var a  = $('#right-'+id).find('textarea').val();
 
     if( !a ) {
       return;
@@ -86,24 +109,123 @@
 
     html.push( '<b>Odpowiedź:</b>' );
     html.push( '<p style="margin-top: 0px;">', a, '</p>' );
+
+    elem = $( html.join('') );
+    $('#right-'+id).empty().append( elem );
+
+    html = [];
     html.push( '<div data-id="', id, '" class="button edit" style="width: 100px; margin-top: 10px; float: right; text-align: center;">' );
     html.push( 'Edytuj odpowiedź</div>' );
-
-    ans = $( html.join('') );
-    $('#right-'+id).empty().append( ans ).find('.edit').click( edit );
+    
+    elem = $( html.join( '' ) );//.click( edit );
+    $('#buttons-'+id).append( elem )
+                     .find('.edit').click( edit ).end()
+                     .find('.submit').remove();
   }
 
   function edit() {
-    var ed, html = [];
+    var elem, html = [];
     var id = $(this).attr('data-id');
     var a  = $('#right-'+id).find('p').html();
 
     html.push( '<b>Odpowiedź:</b>' );
     html.push( '<textarea id="', id, '" style="width: 100%; border: 1px solid #ccc; border-radius: 3px; padding: 5px; font-size: 11px;" rows="5">', a, '</textarea>' );
-    html.push( '<div data-id="', id, '" class="button submit" style="width: 100px; margin-top: 2px; float: left; text-align: center;">Odpowiedz</div>' );
 
-    ed = $( html.join( '' ) );
-    $('#right-'+id).empty().append( ed ).find('.submit').click( answer );
+    elem = $( html.join( '' ) );
+    $('#right-'+id).empty().append( elem );
+
+    html = []
+    html.push( '<div data-id="', id, '" class="button submit" style="width: 100px; margin-top: 10px; float: right; text-align: center;">Odpowiedz</div>' );
+
+    elem = $( html.join( '' ) );//.click( answer );
+    $('#buttons-'+id).append( elem )
+                     .find('.submit').click( answer ).end()
+                     .find('.edit').remove();
   }
+
+
+  function get_rows() {
+    var id = $(this).attr('data-id');
+
+    $.post( '/expert/get_rows/', { id: id }, show_rows );
+  }
+
+  function show_rows( received ) {
+    var i;
+    var elem, html = [];
+    var x, y, w, h;
+    var data = JSON.parse( received );
+    var rows = data.rows;
+
+    html.push( '<div id="expert-table-popup">' );
+    html.push( '<div id="expert-table-close" class="button right" style="background-color: #000; text-align: center; margin-bottom: 5px; border-radius: 10px; padding: 2px 5px;"><b>X</b></div>' );
+    html.push( '<table id="data-table" style="width: 100%">' );
+    html.push( '<thead>' );
+    html.push( '<tr>' );
+    html.push( '<td style="border-left: 2px solid #000;" class="relic">' );
+    html.push( 'Miejscowość' );
+    html.push( '</td>' );
+    html.push( '<td class="relic">' );
+    html.push( 'Ulica' );
+    html.push( '</td>' );
+    html.push( '<td class="relic">' );
+    html.push( 'Województwo' );
+    html.push( '</td>' );
+    html.push( '<td class="relic">' );
+    html.push( 'Powiat' );
+    html.push( '</td>' );
+    html.push( '<td class="relic">' );
+    html.push( 'Gmina' );
+    html.push( '</td>' );
+    html.push( '<td class="relic">' );
+    html.push( 'Określenie obiektu' );
+    html.push( '</td>' );
+    html.push( '<td class="relic">' );
+    html.push( 'Określenie zespołu' );
+    html.push( '</td>' );
+    html.push( '' );
+    html.push( '<td class="relic">' );
+    html.push( 'Z kiedy?' );
+    html.push( '</td>' );
+    html.push( '<td class="relic">' );
+    html.push( 'W rejestrze' );
+    html.push( '</td>' );
+    html.push( '</tr>' );
+    html.push( '</thead>' );
+    html.push( '<tbody>' );
+
+    for( i = 0; i < rows.length; ++i ) {
+      html.push( '<tr id="', rows[i]['_id'], '">' );
+      html.push( '<td data-key="miejscowosc">', rows[i]['miejscowosc'], '</td>' );
+      html.push( '<td data-key="ulica">', rows[i]['ulica'], '</td>' );
+      html.push( '<td data-key="wojewodztwo">', rows[i]['wojewodztwo'], '</td>' );
+      html.push( '<td data-key="powiat">', rows[i]['powiat'], '</td>' );
+      html.push( '<td data-key="gmina">', rows[i]['gmina'], '</td> ' );
+      html.push( '<td data-key="okr_ob">', rows[i]['okr_ob'], '</td>' );
+      html.push( '<td data-key="okr_zes">', rows[i]['okr_zes'], '</td> ' );
+      html.push( '<td data-key="datowanie_ob">', rows[i]['datowanie_ob'], '</td> ' );
+      html.push( '<td data-key="akt_nr_rej">', rows[i]['akt_nr_rej'], '</td>' );
+      html.push( '</tr>' );
+    }
+    html.push( '</tbody>' );
+    html.push( '</table>' );
+    html.push( '</div>' );
+
+    elem = $( html.join('') );
+    $('body').append( elem );
+
+    h = $('#'+data.id).find('.show-table').position().top + 30;
+    elem.css({ 
+      'left': '0px',
+      'top': h+'px'
+    });
+    $('tbody').find('tr:even').css('background-color', '#eee').end()
+              .find('tr:odd').css('background-color', '#ccc');
+
+    $('#expert-table-close').click( function () {
+      $('#expert-table-popup').remove();
+    }); 
+  }
+
 })();
 </script>
