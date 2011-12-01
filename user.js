@@ -174,7 +174,6 @@ exports.user_on = function( req, res ) {
     var now = new Date();
     db_state.update({ 'user': req.session.user }, { '$set': { 'ids': req.body.ids, 'timestamp': now }});
 
-    // do the db trick!
     res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
     res.end();
 };

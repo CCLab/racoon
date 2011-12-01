@@ -75,6 +75,29 @@ exports.get_rows = function ( req, res ) {
     });
 };
 
+exports.ask_question = function ( req, res ) {
+    var question = {
+        user: req.session.user,
+        timestamp: new Date(),
+        ids: req.body.ids,
+        q: req.body.q
+    };
+
+    db_expert.insert( question );
+
+    res.writeHead( '200', {'Content-Type': 'text/plain'} );
+    res.end();
+};
+
+exports.get_answered = function ( req, res ) {
+    var user = req.session.user;
+
+    db_expert.find({ user: user }).sort({ timestamp: -1 }).toArray( function ( err, data ) {
+        res.writeHead( '200', {'Content-Type': 'text/plain'} );
+        res.end( JSON.stringify( data ));
+    });
+};
+
 //////////  L O G I N  //////////
 //exports.login = function ( req, res ) {
 //    var user = req.body.user;

@@ -4,7 +4,127 @@
     $(document).ready(function() {
         $('#tools-popup').hide();
         $('#tools-icon').click( function () {
+
+            var get_answered = function () {
+                $.ajax({
+                    url: '/get_answered/',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function ( received ) {
+                        console.log( received );
+                        var data = received;
+                        var i, elem, html = [];
+
+                        for( i = 0; i < data.length; ++i ) {
+                            html.push( '<div class="qa" style="clear:both">' );
+                            html.push( '<p style="padding: 10px; background-color: #aaa; border: 1px solid #bbb; float: left; width: 46%;">', data[i].q, '</p>' );
+                            if( !!data[i].a ) {
+                                html.push( '<p style="padding: 10px; background-color: #bbb; border: 1px solid #5b5b5b; float: right; width: 46%;">', data[i].a, '</p>' );
+                            }
+                            else {
+                                html.push( '<p style="padding: 10px; background-color: #ccc; border: 1px solid #aaa; float: right; width: 46%;"><i>Jeszcze nie ma odpowiedzi</i></p>' );
+                            }
+                            html.push( '</div>' );
+                        }
+
+                        elem = $( html.join('') );
+                        $('#tools-expert-qa').find('.qa').remove().end().append( elem );
+                    }
+                });
+            };
+
+            var unselectable = function () {
+                $('.selected').removeClass('selected');
+                $('#data-table > tbody').find('tr').unbind('click');
+            };
+
+            unselectable();
             $('#tools-popup').toggle();
+            $('h2[data-name="tools-browser"]').trigger('click');
+
+            if( $('#tools-browser').find('tr').length !== 0 ) {
+                if( $('#tools-popup').is(':visible') ) {
+                    $('.poviats').hide();
+                }
+                return;
+            }
+
+            $('.tab').click( function () {
+                var name = $(this).attr('data-name');
+
+                if( name === "tools-expert" ) {
+                    $('#data-table > tbody').find('tr').click( function () {
+                        $(this).toggleClass('selected');
+                    });
+
+                    get_answered();
+                }
+                else {
+                    unselectable();
+                }
+
+                $('.tab').removeClass('active');
+                $(this).addClass('active');
+                $('.tools-panel').hide().removeClass('active');
+                $('#'+name).show().addClass('active');
+            });
+
+            $('#tools-expert-send').click( function () {
+                var question = $('#tools-expert-question').val();
+                var ids = $.map( $('.selected'), function ( e ) {
+                    return $(e).attr('id');
+                });
+
+                if( !question ) {
+                    return;
+                }
+                $.post( '/ask_question/', { q: question, ids: ids } );
+                unselectable();
+                $('#tools-expert-question').val('');
+                $('#tools-popup').hide();
+            });
+
+            $.ajax({
+                url: '/get_metadata/',
+                type: 'GET',
+                dataType: 'json',
+                success: function ( received ) {
+                    var data = received;
+                    var voivod, poviats;
+                    var i, j;
+                    var elem, html = [];
+
+                    for( i = 0; i < data.length; ++i ) {
+                        voivod = data[i];
+                        poviats = voivod.powiats;
+
+                        html.push( '<tr>' );
+                        html.push( '<td><a id="', voivod._id, '" class="button voivodship">Województwo ', voivod.name, '</a></td>' );
+                        html.push( '<td><span>Liczba: ', voivod.count, '</span></td>' );
+                        html.push( '<td><span>Gotowych: ', voivod.edited, '</span></td>' );
+                        html.push( '</tr>' );
+
+                        for( j = 0; j < poviats.length; ++j ) {
+                            html.push( '<tr style="margin-bottom: 10px;" class="poviats ', voivod._id, '">' );
+                            html.push( '<td style="padding-left: 20px;"><a href="/page/1/search/', poviats[j].name, '" class="button">' );
+                            html.push( 'Powiat ', poviats[j].name, ' <b>&gt;&gt;</b>' );
+                            html.push( '</a></td>' );
+                            html.push( '<td><span>Liczba: ', poviats[j].count, '</span></td>' );
+                            html.push( '<td><span>Gotowych: ', poviats[j].edited, '</span></td>' );
+                            html.push( '</tr>' );
+                        }
+                    }
+
+                    elem = $( html.join('') );
+                    $('#tools-browser').append( elem );
+                    $('.poviats').hide();
+
+                    $('.voivodship').click( function () {
+                        var id = $(this).attr('id');
+                        $('.'+id).toggle();
+                    });
+                }
+            });
         });
         makezebra();
         $('table').fixedtableheader();
@@ -49,8 +169,11 @@
         });
     }
 
-    function set_clickable(){
-        $('tr').not('.blocked').find('.editable').dblclick( function( event ) {
+    function set_clickable() {
+        $('tr').not('.blocked')
+               .not('.approved')
+               .find('.editable')
+               .dblclick( function( event ) {
             addEditEvent( event, $(this) );
         });
     }
@@ -170,12 +293,14 @@
 
         $('body').append( html.join('') );
         $('#add-comment').click( function () {
+            var textarea = $(this).parent().find('textarea');
+
             $.ajax({
               url: '/comment/',
               type: 'POST',
               data: {
-                id: $('textarea').attr('id'),
-                 text: $('textarea').val()
+                id: textarea.attr('id'),
+                 text: textarea.val()
               }
             });
             $('#comments-panel').remove();
@@ -200,10 +325,13 @@
         if( tr.hasClass('approved') ) {
             tr.removeClass('approved');
             tr.addClass('unapproved');
+            $('.editable').unbind('dblclick');
+            set_clickable();
         }
         else {
             tr.removeClass('unapproved');
             tr.addClass('approved');
+            tr.find('.editable').unbind('dblclick');
         }
 
         $.ajax({

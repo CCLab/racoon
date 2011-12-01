@@ -22,7 +22,7 @@ exports.poviat = function ( req, res ) {
 
         data.forEach( function ( e ) {
             var time_diff = !!e.timestamp ? now.getTime() - e.timestamp.getTime() : 0;
-            if( time_diff > 90000 ) {
+            if( time_diff > 60000 ) {
                 db_state.remove({ 'user': e.user });
             }
         });

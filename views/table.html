@@ -6,51 +6,12 @@
       </h2>
       <img id="tools-icon" src="/img/tools_icon.png" alt="Narzędzia" style="float: right;"/>
       <div id="table-container">
-        <div id="tools-popup">
-          <header style="height: 48px">
-            <img style="float: left; vertical-align: middle; margin-top: 12px; margin-right: 10px;" src="/img/white_user_icon.png" alt="" />
-            <h1 style="vertical-align: top; float: left; color: #ccc; padding: 0px; margin: 0px;"><%= user %></h1>
-            <a href="/logout/"><img id="logout-icon" src="/img/logout_icon.png" alt="Logout" style="vertical-align: middle; float: left; margin-top: 5px; margin-left: 10px;" /></a>
-          </header>
-          <div style="clear: both">
-            <h2 class="tab active">Przeglądaj</h2>
-            <h2 class="tab">Odpowiedzi</h2>
-            <h2 class="tab">Komentarze</h2>
-          </div>
-          <div id="tools-browse" class="tools-panel active">
-            <div style="float: left; width: 49%">
-              <h2>Przeglądaj</h2>
-              <table id="tools-browser" style="width: 100%; border: 0px;">
-              </table>
-            </div>
-            <div style="float: right; width: 49%">
-              <h2>Szukaj</h2>
-              <form action="/page/1/search/" method="get" style="margin-left: 13px; float: left;">
-                <input type="text" name="what" placeholder="Co?" />
-                <input type="text" name="where" placeholder="Gdzie?" />
-                <input type="submit" value="Szukaj" />
-              </form>
-            </div>
-          </div>
-          <div id="tools-expert" class="tools-panel">
-            <h2>Pytania do eksperta</h2>
-          </div>
-          <div id="tools-comments" class="tools-panel">
-            <h2>Ostatnie komentarze</h2>
-          </div>
-        </div>
       
         <!--  D A T A   T A B L E  -->
         <table id="data-table">
           <thead>
             <tr>
               <td class="relic">
-                <!-- Approved --> 
-              </td>
-              <td class="relic">
-                <!-- Comments --> 
-              </td>
-              <td style="border-left: 2px solid #000;" class="relic">
                 Miejscowość
               </td>
               <td class="relic">
@@ -78,22 +39,18 @@
               <td class="relic">
                 W rejestrze
               </td>
+              <td style="border-left: 2px solid #888;" class="relic">
+                <!-- Comments --> 
+              </td>
+              <td class="relic">
+                <!-- Approved --> 
+              </td>
             </tr>
           </thead>
           <tbody>
             <% for( var i in data ) { %>   
             <tr id="<%= data[i]['_id'] %>" class="<% if( data[i]['approved'] ) { %>approved <% } if( data[i]['blocked'] ) { %>blocked<% } %>">
-              <td style="width: 25px"><input type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true"<% } %> <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
-              <td style="width: 50px">
-                <% if( !!data[i]['comments'] ) { %>
-                <span class="comment-count" style="font-size: 16px; margin-bottom: 5px; margin-right: 7px; font-weight: bold; color: #3b3b3b;"><%= data[i]['comments_count'] %></span>
-                <img src="/img/comments.png" alt="K" />
-                <% } else { %>
-                <span class="comment-count" style="font-size: 16px; margin-bottom: 5px; margin-right: 7px; font-weight: normal; color: #3b3b3b;">0</span>
-                <img class="empty" src="/img/comments.png" alt="K" />
-                <% } %>
-              </td>
-              <td style="border-left: 2px solid #000;" class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
+              <td class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
               <td class="editable" data-key="ulica"><%= data[i]['ulica'] %></td>
               <td class="editable" data-key="wojewodztwo"><%= data[i]['wojewodztwo'] %></td>
               <td class="editable" data-key="powiat"><%= data[i]['powiat'] %></td>
@@ -102,10 +59,69 @@
               <td class="editable" data-key="okr_zes"><%= data[i]['okr_zes'] %></td> 
               <td class="editable" data-key="datowanie_ob"><%= data[i]['datowanie_ob'] %></td> 
               <td class="editable" data-key="akt_nr_rej"><%= data[i]['akt_nr_rej'] %></td>
+              <td style="border-left: 2px solid #000; width: 50px">
+                <% if( !!data[i]['comments'] ) { %>
+                <span class="comment-count" style="font-size: 16px; margin-bottom: 5px; margin-right: 7px; font-weight: bold; color: #3b3b3b;"><%= data[i]['comments_count'] %></span>
+                <img src="/img/comments.png" alt="K" />
+                <% } else { %>
+                <span class="comment-count" style="font-size: 16px; margin-bottom: 5px; margin-right: 7px; font-weight: normal; color: #3b3b3b;">0</span>
+                <img class="empty" src="/img/comments.png" alt="K" />
+                <% } %>
+              </td>
+              <td style="width: 25px"><input type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true"<% } %> <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
             </tr>
             <% } %>
           </tbody>
         </table>
+
+        <!--  T O O L S   P O P U P  --> 
+        <div id="tools-popup">
+          <header style="height: 48px">
+            <img style="float: left; vertical-align: middle; margin-top: 12px; margin-right: 10px;" src="/img/white_user_icon.png" alt="" />
+            <h1 style="vertical-align: top; float: left; color: #ccc; padding: 0px; margin: 0px;"><%= user %></h1>
+            <a href="/logout/"><img id="logout-icon" src="/img/logout_icon.png" alt="Logout" style="vertical-align: middle; float: left; margin-top: 5px; margin-left: 10px;" /></a>
+          </header>
+          <div style="clear: both">
+            <h2 data-name="tools-browser" class="tab active">Przeglądaj</h2>
+            <h2 data-name="tools-expert" class="tab">Odpowiedzi</h2>
+            <h2 data-name="tools-comments" class="tab">Komentarze</h2>
+          </div>
+
+          <div id="tools-browser" class="tools-panel active">
+            <div style="float: left; width: 65%">
+              <h2>Powiaty</h2>
+              <table id="tools-browser" style="width: 100%; border: 0px;">
+              </table>
+            </div>
+            <div style="float: right; width: 34%">
+              <h2>Szukaj</h2>
+              <form action="/page/1/search/" method="get" style="margin-left: 13px; float: left;">
+                <input type="text" name="what" placeholder="Co?" />
+                <input type="text" name="where" placeholder="Gdzie?" />
+                <input type="submit" value="Szukaj" />
+              </form>
+            </div>
+          </div>
+          
+          <div id="tools-expert" class="tools-panel">
+            <h2>Pytania do eksperta</h2>
+            <div style="overflow: auto;">
+              <textarea id="tools-expert-question" style="width: 50%; border: 2px solid #00b7ff; padding: 5px;border-radius: 5px;float: left;" rows="8" placeholder="Wpisz treść pytania i kliknij w wiersze, których ono dotyczy."></textarea>
+              <div id="tools-expert-send" class="button" style="float: left; width: 100px; margin-left: 10px;vertical-align: bottom; text-align: center;">Wyślij</div>
+            </div>
+            <div style="margin-top: 20px; border-top: 1px dotted #999; clear: both">
+              <div id="tools-expert-qa">
+                <h2>Dotychczasowe odpowiedzi</h2>
+              </div>
+            </div>
+            
+          </div>
+          
+          <div id="tools-comments" class="tools-panel">
+            <h2>Ostatnie komentarze</h2>
+          </div>
+        </div>
+
       </div>
     <br />
     <% if( !!prev_page ) { %><a href="<%= prev_page %>">Poprzednia strona</a> <% } %>
@@ -122,14 +138,6 @@
   <script type="text/javascript">
     (function () {
       $('.tools-panel').not('.active').hide();
-      $(window).scroll( function () {
-        var scroll = $(window).scrollTop();
-        var pos = $('#tools-popup').offset().top;
-        
-        if( pos !== 0 && scroll > pos ) {
-          $('#tools-popup').offset({ top: scroll });
-        }
-      }); 
     })();
   </script>
   <style type="text/css">

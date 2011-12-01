@@ -7,7 +7,7 @@ var Mongolian = require('mongolian');
 var ObjectId  = require('mongolian').ObjectId;
 var mongo     = new Mongolian('91.227.40.36:8000');
 var db_rows   = mongo.db('racoon_db').collection('racoon_data');
-var meta_col  = mongo.db('racoon_db').collection('racoon_meta');
+var db_meta  = mongo.db('racoon_db').collection('racoon_meta');
 var db_users  = mongo.db('racoon_db').collection('racoon_users');
 
 //////////  A P P R O V E D  //////////
@@ -54,7 +54,7 @@ exports.approved = function ( req, res ) {
         var woj = row['wojewodztwo'];
         var pow = row['powiat'];
 
-        meta_col.findOne({ 'name': woj }, update_metadata );
+        db_meta.findOne({ 'name': woj }, update_metadata );
 
         // internal callback
         function update_metadata( err, woj_obj ) {
@@ -67,7 +67,7 @@ exports.approved = function ( req, res ) {
                                                 return e;
                                             });
             // update db
-            meta_col.update({ 'name': woj }, woj_obj );
+            db_meta.update({ 'name': woj }, woj_obj );
         }
     }
 };
@@ -158,7 +158,7 @@ exports.comment = function( req, res ) {
             pow = row['powiat'];
 
 
-        meta_col.findOne({ 'name': woj }, function ( err, woj_obj ) {
+        db_meta.findOne({ 'name': woj }, function ( err, woj_obj ) {
             var pow_list = woj_obj['powiats'].map( function ( e ) {
                                                 if ( e['name'] === pow ) {
                                                     e['comments'] += 1;
@@ -167,7 +167,7 @@ exports.comment = function( req, res ) {
                                             });
             var woj_comments_count = woj_obj['comments'] + 1;
 
-            meta_col.update({ 'wojewodztwo': woj },
+            db_meta.update({ 'wojewodztwo': woj },
                             { '$set':
                                 { 'comments': woj_comments_count,
                                   'powiats': pow_list }
@@ -180,4 +180,9 @@ exports.comment = function( req, res ) {
 };
 
 
-
+exports.get_metadata = function ( req, res ) {
+    db_meta.find({}).sort({'name':1}).toArray( function ( err, meta_data ) {
+        res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
+        res.end( JSON.stringify( meta_data ));
+    });
+};

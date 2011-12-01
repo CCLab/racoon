@@ -54,7 +54,7 @@ tbody > tr:hover {
 }
 
 
-thead > tr, #fixedtableheader0 > tbody > tr  {
+thead > tr, #fixedtableheader1 > tbody > tr  {
     background: black;
     color: white;
 }
@@ -172,6 +172,10 @@ input[type="submit"]:hover {
 .tools-panel {
   clear: both;
   overflow: auto;
-  padding: 25px;
+  padding: 15px;
   background-color: #ccc;
+}
+
+.selected {
+  background-color: #F3E58A !important;
 }

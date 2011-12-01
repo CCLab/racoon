@@ -66,12 +66,15 @@ app.post('/update/', db.update );
 app.get ('/get_comments/', db.get_comments );
 app.post('/comment/', db.comment );
 app.post('/check_new_comments/', db.check_new_comments );
+app.get ('/get_metadata/', db.get_metadata );
 
 //////////////   E X P E R T  ///////////////
 app.get ('/expert/', is_expert, expert.page );
 app.post('/expert/answer/', is_expert, expert.answer );
 app.post('/expert/check_updates/', is_expert, expert.check_updates );
 app.post('/expert/get_rows/', is_expert, expert.get_rows );
+app.post('/ask_question/', is_login, expert.ask_question );
+app.get ('/get_answered/', expert.get_answered );
 
 //////////////   M I D D L E W A R E   //////////////
 function is_login( req, res, next ) {
