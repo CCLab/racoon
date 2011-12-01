@@ -64,6 +64,7 @@ app.get ('/page/:page/search/', is_login, search.general );
 app.post('/approved/', db.approved );
 app.post('/update/', db.update );
 app.get ('/get_comments/', db.get_comments );
+app.get ('/get_user_comments/', db.get_user_comments );
 app.post('/comment/', db.comment );
 app.post('/check_new_comments/', db.check_new_comments );
 app.get ('/get_metadata/', db.get_metadata );

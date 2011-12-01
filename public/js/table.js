@@ -33,6 +33,39 @@
                 });
             };
 
+            var get_comments = function () {
+                $.ajax({
+                    url: '/get_user_comments/',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function ( received ) {
+                        var comments, data = received;
+                        var i, j, n = data.length > 5 ? 5 : data.length;
+                        var elem, html = [];
+
+                        for( i = 0; i < n; ++i ) {
+                            html.push( '<div style="clear: both; overflow: auto; margin-bottom: 15px;" class="comments-container" >' );
+                            html.push( '<div style="border-top: 1px solid #999; border-bottom: 1px solid #999; padding: 3px 5px;">' );
+                            html.push( 'Województwo ', data[i].wojewodztwo, ', gmina ', data[i].gmina, ' :: ', data[i].okr_ob, '</div>' );
+                            for( j = data[i].comments.length-1; j >= 0 ; --j ) {
+                                comment = data[i].comments[j];
+                                if( j % 2 === 0 ) {
+                                    html.push( '<div style="padding: 5px; background-color: #eee; margin-left: 15px; float: left; width: 60%">', comment.text, '</div>' );
+                                }
+                                else {
+                                    html.push( '<div style="padding: 5px; background-color: #ddd; margin-left: 15px; float: left; width: 60%">', comment.text, '</div>' );
+                                }
+                                html.push( '<div style="padding: 5px; margin: 0px; float: left; width: 29%">', comment.user, '</div>' );
+                            }
+                            html.push( '</div>' );
+                        }
+
+                        elem = $( html.join('') );
+                        $('#tools-comments').empty().append( elem );
+                    }
+                });
+            };
+
             var unselectable = function () {
                 $('.selected').removeClass('selected');
                 $('#data-table > tbody').find('tr').unbind('click');
@@ -52,15 +85,18 @@
             $('.tab').click( function () {
                 var name = $(this).attr('data-name');
 
-                if( name === "tools-expert" ) {
-                    $('#data-table > tbody').find('tr').click( function () {
-                        $(this).toggleClass('selected');
-                    });
+                unselectable();
 
-                    get_answered();
-                }
-                else {
-                    unselectable();
+                switch( name ) {
+                    case "tools-expert":
+                        $('#data-table > tbody').find('tr').click( function () {
+                            $(this).toggleClass('selected');
+                        });
+                        get_answered();
+                        break;
+                    case "tools-comments":
+                        get_comments();
+                        break;
                 }
 
                 $('.tab').removeClass('active');

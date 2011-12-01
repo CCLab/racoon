@@ -108,6 +108,22 @@ exports.get_comments = function(req, res) {
     });
 };
 
+//////////  G E T   C O M M E N T S  //////////
+exports.get_user_comments = function(req, res) {
+    var user = req.session.user;
+    var fields = {
+        'comments': 1,
+        'wojewodztwo': 1,
+        'powiat': 1,
+        'gmina': 1,
+        'okr_ob': 1
+    }
+    db_rows.find({ 'comments.user': user }, fields ).sort({ 'last_commented': -1 }).toArray( function ( err, data ) {
+        res.writeHead( '200', {'Content-Type': 'text/plain'} );
+        res.end( JSON.stringify( data ));
+    });
+};
+
 
 //////////  C H E C K   N E W   C O M M E N T S  //////////
 exports.check_new_comments = function( req, res ) {
@@ -118,7 +134,6 @@ exports.check_new_comments = function( req, res ) {
 
     // get objects
     db_rows.find({ '$or': obj_list }, { 'comments': 1 }).toArray( function ( err, data ) {
-
         var comments = data.map( function ( e ) {
             return {
                 id: e._id,
@@ -138,7 +153,7 @@ exports.comment = function( req, res ) {
     var row_id = req.body.id;
     var text = req.body.text;
 
-    var new_comment = { 'user': user, 'text': text };
+    var new_comment = { 'user': user, 'text': text, 'timestamp': new Date() };
 
     db_rows.findOne({ '_id': ObjectId( row_id ) }, function ( err, db_object ) {
         var comments = db_object['comments'];
@@ -150,7 +165,7 @@ exports.comment = function( req, res ) {
             comments.push({ user: user, text: text });
         }
         db_rows.update({ '_id': new ObjectId( row_id ) },
-                       { '$set': {'comments': comments} });
+                       { '$set': {'comments': comments, 'last_commented': new Date()} });
     });
 
     db_rows.findOne({'_id': new ObjectId( row_id ) }, function ( err, row ) {
