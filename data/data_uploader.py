@@ -45,16 +45,25 @@ def prepare_data(csv_file):
                 "mater": row[7],
                 "datowanie_ob": row[8],
                 "akt_nr_rej": row[9],
-                "ulica": row[10]
+                "ulica": row[10],
+                "teryt": row[11],
+                "id": row[12],
+                "long1": row[13],
+                "lat1": row[14],
+                "geo1": row[13] + ', ' + row[14],
+                "long2": row[15],
+                "lat2": row[16],
+                "geo2": row[15] + ', ' + row[16]
             }
         prepared_data.append(prepared_row)
     return prepared_data
 
 
 if __name__ == '__main__':
-    conn_host = '91.227.40.36'
+    conn_host = '91.227.41.101'
     conn_port = 8000
-    # TODO: create db/collection name
+    user = '$$$$'
+    password = '$$$$'
     conn_db = 'racoon_db'
     coll_name = 'racoon_data'
 
@@ -69,15 +78,17 @@ if __name__ == '__main__':
         print 'Unable to connect to the mongodb database:\n %s\n' % e
         exit()
 
+    if db.authenticate(user, password) != 1:
+        exit('Not authenticated!')
     data_to_insert = []
     for filename in filenames:
-        if 'tsv' in filename:
+        if 'csv' in filename:
             try:
                 file = open(filename, 'rb')
             except IOError:
                 exit('Unable to open file %s' % filename)
 
-            csv_file = csv.reader(file, delimiter='\t', quotechar='"')
+            csv_file = csv.reader(file, delimiter=';', quotechar='"')
             data_to_insert.extend(prepare_data(csv_file))
 
     print 'Data prepared to insert.'

@@ -89,8 +89,10 @@ def prepare_data(csv_file):
 
 
 if __name__ == '__main__':
-    conn_host = '91.227.40.36'
+    conn_host = '91.227.41.101'
     conn_port = 8000
+    user = '$$$$'
+    password = '$$$$'
     conn_db = 'racoon_db'
     coll_name = 'racoon_data'
     meta_coll_name = 'racoon_meta'
@@ -103,7 +105,10 @@ if __name__ == '__main__':
     except Exception as e:
         print 'Unable to connect to the mongodb database:\n %s\n' % e
         exit()
-
+        
+    if db.authenticate(user, password) != 1:
+        exit('Not authenticated!')
+        
     meta_data = []
     wojewodztwa = get_all_wojewodztwa(db, coll_name)
     for wojewodztwo_pair in wojewodztwa:
