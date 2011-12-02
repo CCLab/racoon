@@ -61,6 +61,9 @@ thead > tr,
     color: white;
 }
 
+thead img:hover {
+  cursor: default !important;
+}
 
 td {
     border-right: 1px solid #8B8B8B;
@@ -94,10 +97,12 @@ input[type="submit"]:hover {
 }
 .approved {
   color: #999;
+  font-style: italic;
 }
 
 .blocked {
   color: #bbb;
+  font-style: italic;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
@@ -157,6 +162,11 @@ input[type="submit"]:hover {
   border-radius: 5px 5px 0px 0px;
   margin: 0px;
   margin-right: 5px;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 .tab:hover {

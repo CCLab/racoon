@@ -26,7 +26,7 @@
     </div>
     <br style="clear: both"/>
     <div id="buttons-<%= data[i]._id %>">
-      <% if( data[i].ids.length !== 0 ) { %>
+      <% if( !!data[i].ids && data[i].ids.length !== 0 ) { %>
         <div data-id="<%= data[i]._id %>" class="button show-table" style="width: 100px; margin-top: 10px; float: left; text-align: center;">Pokaż tabelę</div>
       <% } %>
       <% if( !!data[i].a ) { %>

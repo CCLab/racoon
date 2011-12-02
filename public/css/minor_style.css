@@ -5,6 +5,7 @@ h1 {
 
 .button {
   padding: 5px;
+  background-color: #ddd;
   border-radius: 3px;
   border: 1px solid #00b7ff;
   color: #3b3b3b;
@@ -55,9 +56,9 @@ td > img:hover, #tools-icon:hover  {
   width: 250px; 
   position: fixed; 
   top: 10px; 
-  left: -2px;
+  right: -2px;
   padding: 5px;
-  border-radius: 0px 5px 5px 0px;
+  border-radius: 5px 0px 0px 5px;
   border: 2px solid #5b5b5b;
   background-color: #e5e5e5;
 }

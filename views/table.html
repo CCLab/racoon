@@ -73,8 +73,8 @@
                 <img class="empty" src="/img/comments.png" alt="K" />
                 <% } %>
               </td>
-              <td style="min-width: 25px"><input class="approve" type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true"<% } %> <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
-              <td style="min-width: 25px"><input class="verify" type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true"<% } %> <% if( data[i]['verified'] ) { %>checked="true"<% } %>/></td>
+              <td style="min-width: 25px"><input class="approve" type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true" <% } %> <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
+              <td style="min-width: 25px"><input class="verify" type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true" <% } %> <% if( data[i]['verified'] ) { %>checked="true"<% } %>/></td>
             </tr>
             <% } %>
           </tbody>
@@ -112,31 +112,34 @@
           <div id="tools-expert" class="tools-panel">
             <h2>Pytania do eksperta</h2>
             <div style="overflow: auto;">
-              <textarea id="tools-expert-question" style="width: 50%; border: 2px solid #00b7ff; padding: 5px;border-radius: 5px;float: left;" rows="8" placeholder="Wpisz treść pytania i kliknij w wiersze, których ono dotyczy."></textarea>
-              <div id="tools-expert-send" class="button" style="float: left; width: 100px; margin-left: 10px;vertical-align: bottom; text-align: center;">Wyślij</div>
+              <textarea id="tools-expert-question" style="width: 50%; border: 2px solid #00b7ff; padding: 5px;border-radius: 5px;float: left;" rows="8" ></textarea>
+              <div style="float: right; width: 49%;">
+              <div id="tools-expert-send" class="button" style="width: 100px; text-align: center;">Wyślij</div>
+              <p style="background-color: #ddd; padding: 10px; border: 1px solid #aaa; color: #666; width: 75%">Jeśli twoje pytanie odnosi się do konkretnych wierszy, zaznacz je klikając w każdy z osobna. Nasz ekspert będzie mógł łatwiej i pełniej odnieść się do Twojego pytania.</p>
+              </div>
             </div>
             <div style="margin-top: 20px; border-top: 1px dotted #999; clear: both">
               <div id="tools-expert-qa">
-                <h2>Dotychczasowe odpowiedzi</h2>
               </div>
             </div>
             
           </div>
           
           <div id="tools-comments" class="tools-panel">
-            <h2>Ostatnie komentarze</h2>
           </div>
         </div>
 
       </div>
     <br />
-    <% if( !!prev_page ) { %><a href="<%= prev_page %>">Poprzednia strona</a> <% } %>
-    <% for( var i = 0; i < pagination.length; ++i ) { if( page !== (i+1) ) { %> 
-      &nbsp; <a href="<%= pagination[i] %>"><%= i+1 %></a>  &nbsp; 
-    <% } else { %>
-      &nbsp; <%= i+1 %> &nbsp; 
-    <% } } %>
-    <% if( !!next_page ) { %><a href="<%= next_page %>">Następna strona</a> <% } %>
+    <% if( pagination.length !== 1 ) { %>
+      <% if( !!prev_page ) { %><a href="<%= prev_page %>">Poprzednia strona</a> <% } %>
+      <% for( var i = 0; i < pagination.length; ++i ) { if( page !== (i+1) ) { %> 
+        &nbsp; <a href="<%= pagination[i] %>"><%= i+1 %></a>  &nbsp; 
+      <% } else { %>
+        &nbsp; <%= i+1 %> &nbsp; 
+      <% } } %>
+      <% if( !!next_page ) { %><a href="<%= next_page %>">Następna strona</a> <% } %>
+    <% } %>
 
   <script src="/js/jquery-ui.js"></script>
   <script src="/js/jquery.fixedtableheader-1-0-2.min.js"> </script>

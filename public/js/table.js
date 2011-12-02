@@ -15,20 +15,26 @@
                         var data = received;
                         var i, elem, html = [];
 
-                        for( i = 0; i < data.length; ++i ) {
-                            html.push( '<div class="qa" style="clear:both">' );
-                            html.push( '<p style="padding: 10px; background-color: #aaa; border: 1px solid #bbb; float: left; width: 46%;">', data[i].q, '</p>' );
-                            if( !!data[i].a ) {
-                                html.push( '<p style="padding: 10px; background-color: #bbb; border: 1px solid #5b5b5b; float: right; width: 46%;">', data[i].a, '</p>' );
-                            }
-                            else {
-                                html.push( '<p style="padding: 10px; background-color: #ccc; border: 1px solid #aaa; float: right; width: 46%;"><i>Jeszcze nie ma odpowiedzi</i></p>' );
-                            }
-                            html.push( '</div>' );
+                        if( !data.length ) {
+                            html.push( '<h2>Jeszcze nie ma żadnych pytań</h2>' );
                         }
-
+                        else {
+                            html.push( '<h2>Dotychczasowe odpowiedzi</h2>' );
+                            for( i = 0; i < data.length; ++i ) {
+                                html.push( '<div class="qa" style="clear:both">' );
+                                html.push( '<p style="padding: 10px; background-color: #aaa; border: 1px solid #bbb; float: left; width: 46%;">', data[i].q, '</p>' );
+                                if( !!data[i].a ) {
+                                    html.push( '<p style="padding: 10px; background-color: #bbb; border: 1px solid #5b5b5b; float: right; width: 46%;">', data[i].a, '</p>' );
+                                }
+                                else {
+                                    html.push( '<p style="padding: 10px; background-color: #ccc; border: 1px solid #aaa; float: right; width: 46%;"><i>Jeszcze nie ma odpowiedzi</i></p>' );
+                                }
+                                html.push( '</div>' );
+                            }
+                        }
                         elem = $( html.join('') );
-                        $('#tools-expert-qa').find('.qa').remove().end().append( elem );
+                        $('#tools-expert-qa').empty().append( elem );
+                        //$('#tools-expert-qa').find('.qa').remove().end().append( elem );
                     }
                 });
             };
@@ -46,25 +52,31 @@
                         var i, j, n = data.length;
                         var elem, html = [];
 
-                        for( i = 0; i < n; ++i ) {
-                            html.push( '<div style="clear: both; overflow: auto; margin-bottom: 15px;" class="comments-container" >' );
-                            html.push( '<div style="border-top: 1px solid #999; border-bottom: 1px solid #999; padding: 3px 5px;">' );
-                            html.push( 'Województwo ', data[i].wojewodztwo, ', gmina ', data[i].gmina, ' :: ', data[i].okr_ob, '</div>' );
-                            for( j = data[i].comments.length-1; j >= 0 ; --j ) {
-                                comment = data[i].comments[j];
-                                if( j % 2 === 0 ) {
-                                    html.push( '<div style="padding: 5px; background-color: #eee; margin-left: 15px; float: left; width: 60%">', comment.text, '</div>' );
-                                }
-                                else {
-                                    html.push( '<div style="padding: 5px; background-color: #ddd; margin-left: 15px; float: left; width: 60%">', comment.text, '</div>' );
-                                }
-                                html.push( '<div style="padding: 5px; margin: 0px; float: left; width: 29%">', comment.user, '</div>' );
-                            }
-                            html.push( '</div>' );
+                        if( !data.length ) {
+                            html.push( '<h2>Brak jeszcze komentarzy</h2>' );
                         }
-                        if( total > data.length ) {
-                            html.push( '<div id="tools-comments-all" class=button style="text-align: center; width: 100px">' );
-                            html.push( 'Pokaż wszystkie</div>' );
+                        else {
+                            html.push( '<h2>Ostatnie komentarze</h2>' );
+                            for( i = 0; i < n; ++i ) {
+                                html.push( '<div style="clear: both; overflow: auto; margin-bottom: 15px;" class="comments-container" >' );
+                                html.push( '<div style="border-top: 1px solid #999; border-bottom: 1px solid #999; padding: 3px 5px;">' );
+                                html.push( 'Województwo ', data[i].wojewodztwo, ', gmina ', data[i].gmina, ' :: ', data[i].okr_ob, '</div>' );
+                                for( j = data[i].comments.length-1; j >= 0 ; --j ) {
+                                    comment = data[i].comments[j];
+                                    if( j % 2 === 0 ) {
+                                        html.push( '<div style="padding: 5px; background-color: #eee; margin-left: 15px; float: left; width: 60%">', comment.text, '</div>' );
+                                    }
+                                    else {
+                                        html.push( '<div style="padding: 5px; background-color: #ddd; margin-left: 15px; float: left; width: 60%">', comment.text, '</div>' );
+                                    }
+                                    html.push( '<div style="padding: 5px; margin: 0px; float: left; width: 29%">', comment.user, '</div>' );
+                                }
+                                html.push( '</div>' );
+                            }
+                            if( total > data.length ) {
+                                html.push( '<div id="tools-comments-all" class=button style="text-align: center; width: 100px">' );
+                                html.push( 'Pokaż wszystkie</div>' );
+                            }
                         }
 
                         elem = $( html.join('') );
@@ -119,6 +131,7 @@
                 $(this).addClass('active');
                 $('.tools-panel').hide().removeClass('active');
                 $('#'+name).show().addClass('active');
+            }).css({
             });
 
             $('#tools-expert-send').click( function () {
@@ -266,7 +279,19 @@
                         addEditEvent( ev, td_cell);
                   });
             }
+        });
 
+        // detect esc cancel
+        $(document).click( function( event ){
+            if( event.target.type === "text" ) {
+                event.stopPropagation();
+                return;
+            }
+            td_cell.empty()
+                .html( value )
+                .dblclick( function ( ev ) {
+                    addEditEvent( ev, td_cell);
+                });
         });
     }
 
@@ -327,6 +352,7 @@
         var received = JSON.parse( received_data );
         var html = [];
 
+        $('#comments-panel').remove();
         html.push( '<div id="comments-panel">' );
         if( received['data'].length !== 0 ) {
             received['data'].forEach( function ( e ) {
@@ -381,14 +407,16 @@
 
     $('.approve').click( function () {
         var tr = $(this).parent().parent();
+        // unchecking approval
         if( tr.hasClass('approved') ) {
             tr.removeClass('approved');
             tr.addClass('unapproved');
             $('.editable').unbind('dblclick');
             tr.find('.verify').attr('disabled', true);
             set_clickable();
-        }
+        } // approving!
         else {
+            confirmInput();
             tr.removeClass('unapproved');
             tr.addClass('approved');
             tr.find('.editable').unbind('dblclick');

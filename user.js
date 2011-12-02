@@ -10,6 +10,7 @@ var db_cols   = mongo.db('racoon_db').collection('racoon_data');
 var db_meta   = mongo.db('racoon_db').collection('racoon_meta');
 var db_state  = mongo.db('racoon_db').collection('racoon_state');
 
+var cookie_time = 8*3600000;
 
 
 //////////  L O G I N  //////////
@@ -40,6 +41,8 @@ exports.login = function ( req, res ) {
         else {
             // on successful login store user name in session
             req.session.user = user;
+            req.session.cookie.expires = new Date(Date.now() + cookie_time);
+            req.session.cookie.maxAge = cookie_time;
             res.redirect( '/user/' + user );
             res.end();
         }
@@ -112,6 +115,8 @@ exports.register = function ( req, res ) {
 
             // after successful creation, store user name in session
             req.session.user = user;
+            req.session.cookie.expires = new Date(Date.now() + cookie_time);
+            req.session.cookie.maxAge = cookie_time;
             // move to user page
             res.writeHead( 302, {
                 'Location': '/user/' + user
