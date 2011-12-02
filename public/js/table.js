@@ -151,6 +151,9 @@
                 unselectable();
                 $('#tools-expert-question').val('');
                 $('#tools-popup').hide();
+                $('table').fixedtableheader();
+                $('#data-table').find('td').css('opacity', '1');
+                $('#data-table').find('input').show();
             });
 
             $.ajax({
