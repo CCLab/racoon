@@ -11,11 +11,8 @@
         <table id="data-table">
           <thead>
             <tr>
-              <td class="relic">
-                Miejscowość
-              </td>
-              <td class="relic">
-                Ulica
+              <td class="relic" style="width: 115px">
+                W rejestrze
               </td>
               <td class="relic">
                 Województwo
@@ -27,6 +24,15 @@
                 Gmina
               </td>
               <td class="relic">
+                Miejscowość
+              </td>
+              <td class="relic">
+                Ulica
+              </td>
+              <td class="relic">
+                GPS
+              </td>
+              <td class="relic">
                 Określenie obiektu
               </td>
               <td class="relic">
@@ -35,9 +41,6 @@
 
               <td class="relic">
                 Z kiedy?
-              </td>
-              <td class="relic">
-                W rejestrze
               </td>
               <td style="border-left: 2px solid #888;" class="relic">
                 <!-- Comments --> 
@@ -55,15 +58,16 @@
           <tbody>
             <% for( var i in data ) { %>   
             <tr id="<%= data[i]['_id'] %>" data-approved="<% if( data[i]['approved'] ) { %><%= data[i]['approved'] %><% } %>" class="<% if( data[i]['approved'] ) { %>approved <% } if( data[i]['blocked'] ) { %>blocked<% } %>">
-              <td class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
-              <td class="editable" data-key="ulica"><%= data[i]['ulica'] %></td>
+              <td class="editable" data-key="akt_nr_rej" style="width: 115px"><%= data[i]['akt_nr_rej'] %></td>
               <td class="editable" data-key="wojewodztwo"><%= data[i]['wojewodztwo'] %></td>
               <td class="editable" data-key="powiat"><%= data[i]['powiat'] %></td>
               <td class="editable" data-key="gmina"><%= data[i]['gmina'] %></td> 
+              <td class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
+              <td class="editable" data-key="ulica"><%= data[i]['ulica'] %></td>
+              <td class="editable" data-key="geo1"><%= data[i]['geo1'] %></td>
               <td class="editable" data-key="okr_ob"><%= data[i]['okr_ob'] %></td>
               <td class="editable" data-key="okr_zes"><%= data[i]['okr_zes'] %></td> 
               <td class="editable" data-key="datowanie_ob"><%= data[i]['datowanie_ob'] %></td> 
-              <td class="editable" data-key="akt_nr_rej"><%= data[i]['akt_nr_rej'] %></td>
               <td style="border-left: 2px solid #000; width: 50px">
                 <% if( !!data[i]['comments'] ) { %>
                 <span class="comment-count" style="font-size: 16px; margin-bottom: 5px; margin-right: 7px; font-weight: bold; color: #3b3b3b;"><%= data[i]['comments_count'] %></span>
@@ -126,6 +130,7 @@
           </div>
           
           <div id="tools-comments" class="tools-panel">
+            <h2>Sprawdzam czy są nowe komentarze...</h2>
           </div>
         </div>
 

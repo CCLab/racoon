@@ -1,5 +1,4 @@
 var express      = require('express');
-var MongoDBStore = require('connect-mongodb');
 var MemoryStore  = express.session.MemoryStore,
     sessionStore = new MemoryStore();
 

@@ -3,12 +3,7 @@ var url          = require('url');
 var _            = require('underscore');
 var crypto       = require('crypto');
 
-var Mongolian = require('mongolian');
-var mongo     = new Mongolian('91.227.40.36:8000');
-var db_users  = mongo.db('racoon_db').collection('racoon_users');
-var db_cols   = mongo.db('racoon_db').collection('racoon_data');
-var db_meta   = mongo.db('racoon_db').collection('racoon_meta');
-var db_state  = mongo.db('racoon_db').collection('racoon_state');
+var cur     = require('./db_cur');
 
 var cookie_time = 8*3600000;
 
@@ -22,7 +17,7 @@ exports.login = function ( req, res ) {
     delete req.session.user;
 
     // get user data from db and check the login
-    db_users.findOne({ user: user }, authenticateUser );
+    cur.users.findOne({ user: user }, authenticateUser );
 
 
     // callback
@@ -43,6 +38,7 @@ exports.login = function ( req, res ) {
             req.session.user = user;
             req.session.cookie.expires = new Date(Date.now() + cookie_time);
             req.session.cookie.maxAge = cookie_time;
+
             res.redirect( '/user/' + user );
             res.end();
         }
@@ -54,7 +50,7 @@ exports.login = function ( req, res ) {
 exports.logout = function ( req, res ) {
     var user = req.session.user;
 
-    db_state.remove({ 'user': user }, function () {
+    cur.state.remove({ 'user': user }, function () {
         delete user;
         res.redirect('/');
     });
@@ -92,7 +88,7 @@ exports.register = function ( req, res ) {
     md5_pass.update( req.body.pass );
 
     // check if the user doesn't exist before creating a new one
-    db_users.findOne({ user: user }, create_new_user );
+    cur.users.findOne({ user: user }, create_new_user );
 
 
     // callback
@@ -106,7 +102,7 @@ exports.register = function ( req, res ) {
         }
         else {
             // add user to db
-            db_users.insert({
+            cur.users.insert({
                 user: user,
                 email: email,
                 pass: md5_pass.digest('hex'),
@@ -131,7 +127,7 @@ exports.register = function ( req, res ) {
 exports.page = function ( req, res ) {
     var user = req.params.name;
 
-    db_users.findOne({ user: user }, function( err, db_user ) {
+    cur.users.findOne({ user: user }, function( err, db_user ) {
         // turn _id hashes to ObjectIds
         var ObjectId = require('mongolian').ObjectId;
         var obj_list = db_user['rows'].map( function ( e ) {
@@ -139,16 +135,16 @@ exports.page = function ( req, res ) {
         });
 
         // get objects
-        db_cols.find({ '$or': obj_list }).toArray( function ( err, data ) {
+        cur.data.find({ '$or': obj_list }).toArray( function ( err, data ) {
             // create a string list of monumnets
             var list = data.map( function ( e ) {
                 return e['wojewodztwo'] + ' :: ' + e['gmina'] + ' :: ' + e['okr_ob'];
             });
 
             // how to make Mongo sort the utf-8 ?!
-            db_meta.find({}).sort({'name':1}).toArray( function ( err, meta_data ) {
+            cur.meta.find({}).sort({'name':1}).toArray( function ( err, meta_data ) {
 
-                db_cols.find({ 'comments.user': user },
+                cur.data.find({ 'comments.user': user },
                              { 'okr_ob': 1, 'comments': 1, 'wojewodztwo': 1, 'powiat': 1, 'miejscowosc': 1 })
                        .toArray( function ( err, comments_list ) {
                             comments_list.reverse();
@@ -177,7 +173,7 @@ exports.page = function ( req, res ) {
 
 exports.user_on = function( req, res ) {
     var now = new Date();
-    db_state.update({ 'user': req.session.user }, { '$set': { 'ids': req.body.ids, 'timestamp': now }});
+    cur.state.update({ 'user': req.session.user }, { '$set': { 'ids': req.body.ids, 'timestamp': now }});
 
     res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
     res.end();

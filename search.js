@@ -1,38 +1,34 @@
 var express   = require('express');
 var _         = require('underscore');
-var Mongolian = require('mongolian');
-var mongo     = new Mongolian('91.227.40.36:8000');
-var db_users  = mongo.db('racoon_db').collection('racoon_users');
 var url       = require('url');
 var limit     = 20;
-//var state     = require('./state3');
+
+var cur     = require('./db_cur');
 
 //////////  P O V I A T  //////////
 exports.poviat = function ( req, res ) {
-    var cols     = mongo.db('racoon_db').collection('racoon_data');
-    var db_state = mongo.db('racoon_db').collection('racoon_state');
     var poviat   = req.params.poviat;
     var page     = parseInt( req.params.page, 10 );
     var user     = req.session.user;
 
-    db_users.update({ 'user': user }, { '$set': { 'last_seen': req.url }});
+    cur.users.update({ 'user': user }, { '$set': { 'last_seen': req.url }});
 
-    db_state.find({}).toArray( function ( err, data ) {
+    cur.state.find({}).toArray( function ( err, data ) {
         var now = new Date();
 
         data.forEach( function ( e ) {
             var time_diff = !!e.timestamp ? now.getTime() - e.timestamp.getTime() : 0;
             if( time_diff > 60000 ) {
-                db_state.remove({ 'user': e.user });
+                cur.state.remove({ 'user': e.user });
             }
         });
 
-        cols.find({ powiat: req.params.poviat }).count( function ( err, count ) {
-            cols.find({ powiat: req.params.poviat }).skip( limit * ( page-1 )).limit( limit ).toArray( function ( err, data ) {
+        cur.data.find({ powiat: req.params.poviat }).count( function ( err, count ) {
+            cur.data.find({ powiat: req.params.poviat }).sort({'_id': 1 }).skip( limit * ( page-1 )).limit( limit ).toArray( function ( err, data ) {
                 // manage blocked rows
-                db_state.remove({ 'user': user }, function () {
+                cur.state.remove({ 'user': user }, function () {
                     // gather all blocked ids
-                    db_state.find({}, {'ids': 1}).toArray( function( err, blocked_ids ) {
+                    cur.state.find({}, {'ids': 1}).toArray( function( err, blocked_ids ) {
                         var ids = data.map( function ( e ) {
                             return e._id+'';
                         });
@@ -40,7 +36,7 @@ exports.poviat = function ( req, res ) {
                         var blocked = _.intersection( ids, all_blocked );
 
                         // save new blocked ids in db
-                        db_state.insert({
+                        cur.state.insert({
                             'user': user,
                             'ids': _.difference( ids, all_blocked ),
                             'timestamp': new Date()
@@ -113,26 +109,23 @@ exports.general = function ( req, res ) {
     var q_where, c_where;
     var filt;
 
-    var cols     = mongo.db('racoon_db').collection('racoon_data');
-    var db_state = mongo.db('racoon_db').collection('racoon_state');
-
     var render = function ( query ) {
-        db_state.find({}).toArray( function ( err, data ) {
+        cur.state.find({}).toArray( function ( err, data ) {
             var now = new Date();
 
             data.forEach( function ( e ) {
                 var time_diff = !!e.timestamp ? now.getTime() - e.timestamp.getTime() : 0;
                 if( time_diff > 90000 ) {
-                    db_state.remove({ 'user': e.user });
+                    cur.state.remove({ 'user': e.user });
                 }
             });
 
-            cols.find( query ).count( function ( err, count ) {
-                cols.find( query ).skip( limit * ( page-1 )).limit( limit ).toArray( function ( err, data ) {
+            cur.data.find( query ).count( function ( err, count ) {
+                cur.data.find( query ).sort({'_id': 1 }).skip( limit * ( page-1 )).limit( limit ).toArray( function ( err, data ) {
                     // manage blocked rows
-                    db_state.remove({ 'user': user }, function () {
+                    cur.state.remove({ 'user': user }, function () {
                         // gather all blocked ids
-                        db_state.find({}, {'ids': 1}).toArray( function( err, blocked_ids ) {
+                        cur.state.find({}, {'ids': 1}).toArray( function( err, blocked_ids ) {
                             var ids = data.map( function ( e ) {
                                 return e._id+'';
                             });
@@ -140,7 +133,7 @@ exports.general = function ( req, res ) {
                             var blocked = _.intersection( ids, all_blocked );
 
                             // save new blocked ids in db
-                            db_state.insert({
+                            cur.state.insert({
                                 'user': user,
                                 'ids': _.difference( ids, all_blocked )
                             });
@@ -204,7 +197,7 @@ exports.general = function ( req, res ) {
         });
     };
 
-    db_users.update({ 'user': user }, { '$set': { 'last_seen': req.url }});
+    cur.users.update({ 'user': user }, { '$set': { 'last_seen': req.url }});
 
     if( !!what && !where ) {
         query = {'$or': [
@@ -237,8 +230,8 @@ exports.general = function ( req, res ) {
                     { 'okr_zes': new RegExp( what, 'i' ) }
                   ]};
 
-        cols.find( q_where ).count( function ( err, c_where ) {
-            cols.find( q_what ).count( function ( err, c_what ) {
+        cur.data.find( q_where ).count( function ( err, c_where ) {
+            cur.data.find( q_what ).count( function ( err, c_what ) {
                 if( q_where <= q_what ) {
                     query = q_where;
                     filt  = function ( e ) {
@@ -260,21 +253,21 @@ exports.general = function ( req, res ) {
                     };
                 }
 
-                db_state.find({}).toArray( function ( err, data ) {
+                cur.state.find({}).toArray( function ( err, data ) {
                     var now = new Date();
 
                     data.forEach( function ( e ) {
                         var time_diff = !!e.timestamp ? now.getTime() - e.timestamp.getTime() : 0;
                         if( time_diff > 90000 ) {
-                            db_state.remove({ 'user': e.user });
+                            cur.state.remove({ 'user': e.user });
                         }
                     });
 
-                    cols.find( query ).toArray( function ( err, result ) {
+                    cur.data.find( query ).sort({'_id': 1 }).toArray( function ( err, result ) {
                         // manage blocked rows
-                        db_state.remove({ 'user': user }, function () {
+                        cur.state.remove({ 'user': user }, function () {
                             // gather all blocked ids
-                            db_state.find({}, {'ids': 1}).toArray( function( err, blocked_ids ) {
+                            cur.state.find({}, {'ids': 1}).toArray( function( err, blocked_ids ) {
 
                                 var data = result.filter( filt );
                                 var ids = data.map( function ( e ) {
@@ -284,7 +277,7 @@ exports.general = function ( req, res ) {
                                 var blocked = _.intersection( ids, all_blocked );
 
                                 // save new blocked ids in db
-                                db_state.insert({
+                                cur.state.insert({
                                     'user': user,
                                     'ids': _.difference( ids, all_blocked )
                                 });

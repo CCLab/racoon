@@ -3,12 +3,8 @@ var _         = require('underscore');
 
 var history   = require('./history');
 
-var Mongolian = require('mongolian');
 var ObjectId  = require('mongolian').ObjectId;
-var mongo     = new Mongolian('91.227.40.36:8000');
-var db_rows   = mongo.db('racoon_db').collection('racoon_data');
-var db_meta  = mongo.db('racoon_db').collection('racoon_meta');
-var db_users  = mongo.db('racoon_db').collection('racoon_users');
+var cur  = require('./db_cur');
 
 //////////  A P P R O V E D  //////////
 exports.approved = function ( req, res ) {
@@ -17,7 +13,7 @@ exports.approved = function ( req, res ) {
     var row_id = req.body.id;
     var set    = JSON.parse( req.body.set );
 
-    db_users.findOne({ user: user }, update_user_account );
+    cur.users.findOne({ user: user }, update_user_account );
 
     history.save_approval( user, row_id, set );
 
@@ -29,14 +25,14 @@ exports.approved = function ( req, res ) {
         // set --> boolean for approved the row
         if( set ) {
             // update collection db
-            db_rows.update({ '_id': new ObjectId( row_id ) },
+            cur.data.update({ '_id': new ObjectId( row_id ) },
                            { '$set': { 'approved': user } });
             // push a new monument to user's list
             db_user['rows'].push( row_id );
         }
         else {
             // update collection db
-            db_rows.update({ '_id': new ObjectId( row_id ) },
+            cur.data.update({ '_id': new ObjectId( row_id ) },
                            { '$unset': { 'approved': 1 } });
             // remove monument from the user's list
             db_user['rows'] = db_user['rows'].filter( function ( e ) {
@@ -44,7 +40,7 @@ exports.approved = function ( req, res ) {
                                             });
         }
         // update the user's list in db
-        db_users.update({ 'user': user },
+        cur.users.update({ 'user': user },
                         { '$set': {'rows': db_user['rows'] } });
     }
 };
@@ -55,8 +51,8 @@ exports.verified = function ( req, res ) {
     var user = req.session.user;
     var row_id = req.body.id;
 
-    db_users.findOne({ user: user }, update_user_account );
-    db_rows.findOne({'_id': new ObjectId( row_id ) }, mark_verified_object );
+    cur.users.findOne({ user: user }, update_user_account );
+    cur.data.findOne({'_id': new ObjectId( row_id ) }, mark_verified_object );
 
     history.save_verification( user, row_id );
 
@@ -66,7 +62,7 @@ exports.verified = function ( req, res ) {
     // callbacks
     function update_user_account( err, db_user ) {
         // update collection db
-        db_rows.update({ '_id': new ObjectId( row_id ) },
+        cur.data.update({ '_id': new ObjectId( row_id ) },
                        { '$set': { 'verified': user } });
         // push a new monument to user's list
         try {
@@ -77,7 +73,7 @@ exports.verified = function ( req, res ) {
         }
 
         // update the user's list in db
-        db_users.update({ 'user': user },
+        cur.users.update({ 'user': user },
                         { '$set': {'verified_rows': db_user['verified_rows'] } });
     }
 
@@ -86,7 +82,7 @@ exports.verified = function ( req, res ) {
         var woj = row['wojewodztwo'];
         var pow = row['powiat'];
 
-        db_meta.findOne({ 'name': woj }, update_metadata );
+        cur.meta.findOne({ 'name': woj }, update_metadata );
 
         // internal callback
         function update_metadata( err, woj_obj ) {
@@ -99,7 +95,7 @@ exports.verified = function ( req, res ) {
                                                 return e;
                                             });
             // update db
-            db_meta.update({ 'name': woj }, woj_obj );
+            cur.meta.update({ 'name': woj }, woj_obj );
         }
     }
 };
@@ -114,7 +110,7 @@ exports.update = function( req, res ) {
     new_value[key] = val;
 
     history.save_edit( req.session.user, row_id, key, val );
-    db_rows.update({ '_id': new ObjectId( row_id ) }, { '$set': new_value });
+    cur.data.update({ '_id': new ObjectId( row_id ) }, { '$set': new_value });
 
     res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
     res.end();
@@ -126,7 +122,7 @@ exports.get_comments = function(req, res) {
     var params = url.parse( req.url, true );
     var id = params.query.id;
 
-    db_rows.find({ '_id': new ObjectId(id) }).toArray( function ( err, data ) {
+    cur.data.find({ '_id': new ObjectId(id) }).toArray( function ( err, data ) {
         data = _.flatten( data.map( function ( e ) {
                                     return e['comments'];
                         }))
@@ -154,9 +150,8 @@ exports.get_user_comments = function(req, res) {
         limit = parseInt( limit, 10 );
     }
 
-    console.log( limit );
-    db_rows.find({ 'comments.user': user }).count( function ( err, total ) {
-        db_rows.find({ 'comments.user': user }, fields ).limit( limit ).sort({ 'last_commented': -1 }).toArray( function ( err, data ) {
+    cur.data.find({ 'comments.user': user }).count( function ( err, total ) {
+        cur.data.find({ 'comments.user': user }, fields ).limit( limit ).sort({ 'last_commented': -1 }).toArray( function ( err, data ) {
             var result = {
                 data: data,
                 total: total
@@ -176,7 +171,7 @@ exports.check_new_comments = function( req, res ) {
     });
 
     // get objects
-    db_rows.find({ '$or': obj_list }, { 'comments': 1 }).toArray( function ( err, data ) {
+    cur.data.find({ '$or': obj_list }, { 'comments': 1 }).toArray( function ( err, data ) {
         var comments = data.map( function ( e ) {
             return {
                 id: e._id,
@@ -198,7 +193,7 @@ exports.comment = function( req, res ) {
 
     var new_comment = { 'user': user, 'text': text, 'timestamp': new Date() };
 
-    db_rows.findOne({ '_id': ObjectId( row_id ) }, function ( err, db_object ) {
+    cur.data.findOne({ '_id': ObjectId( row_id ) }, function ( err, db_object ) {
         var comments = db_object['comments'];
         try {
             comments.push({ user: user, text: text });
@@ -207,16 +202,16 @@ exports.comment = function( req, res ) {
             comments = [];
             comments.push({ user: user, text: text });
         }
-        db_rows.update({ '_id': new ObjectId( row_id ) },
+        cur.data.update({ '_id': new ObjectId( row_id ) },
                        { '$set': {'comments': comments, 'last_commented': new Date()} });
     });
 
-    db_rows.findOne({'_id': new ObjectId( row_id ) }, function ( err, row ) {
+    cur.data.findOne({'_id': new ObjectId( row_id ) }, function ( err, row ) {
         var woj = row['wojewodztwo'],
             pow = row['powiat'];
 
 
-        db_meta.findOne({ 'name': woj }, function ( err, woj_obj ) {
+        cur.meta.findOne({ 'name': woj }, function ( err, woj_obj ) {
             var pow_list = woj_obj['powiats'].map( function ( e ) {
                                                 if ( e['name'] === pow ) {
                                                     e['comments'] += 1;
@@ -225,7 +220,7 @@ exports.comment = function( req, res ) {
                                             });
             var woj_comments_count = woj_obj['comments'] + 1;
 
-            db_meta.update({ 'wojewodztwo': woj },
+            cur.meta.update({ 'wojewodztwo': woj },
                             { '$set':
                                 { 'comments': woj_comments_count,
                                   'powiats': pow_list }
@@ -239,7 +234,7 @@ exports.comment = function( req, res ) {
 
 
 exports.get_metadata = function ( req, res ) {
-    db_meta.find({}).sort({'name':1}).toArray( function ( err, meta_data ) {
+    cur.meta.find({}).sort({'name':1}).toArray( function ( err, meta_data ) {
         res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
         res.end( JSON.stringify( meta_data ));
     });
