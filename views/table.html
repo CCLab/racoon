@@ -44,12 +44,17 @@
               </td>
               <td class="relic">
                 <!-- Approved --> 
+                <img src="/img/ikonka_approved.png" alt="K" />
+              </td>
+              <td class="relic">
+                <!-- Approved --> 
+                <img src="/img/ikonka_checked.png" alt="K" />
               </td>
             </tr>
           </thead>
           <tbody>
             <% for( var i in data ) { %>   
-            <tr id="<%= data[i]['_id'] %>" class="<% if( data[i]['approved'] ) { %>approved <% } if( data[i]['blocked'] ) { %>blocked<% } %>">
+            <tr id="<%= data[i]['_id'] %>" data-approved="<% if( data[i]['approved'] ) { %><%= data[i]['approved'] %><% } %>" class="<% if( data[i]['approved'] ) { %>approved <% } if( data[i]['blocked'] ) { %>blocked<% } %>">
               <td class="editable" data-key="miejscowosc"><%= data[i]['miejscowosc'] %></td>
               <td class="editable" data-key="ulica"><%= data[i]['ulica'] %></td>
               <td class="editable" data-key="wojewodztwo"><%= data[i]['wojewodztwo'] %></td>
@@ -68,7 +73,8 @@
                 <img class="empty" src="/img/comments.png" alt="K" />
                 <% } %>
               </td>
-              <td style="width: 25px"><input type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true"<% } %> <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
+              <td style="min-width: 25px"><input class="approve" type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true"<% } %> <% if( data[i]['approved'] ) { %>checked="true"<% } %>/></td>
+              <td style="min-width: 25px"><input class="verify" type="checkbox" <% if( data[i]['blocked'] ) { %>disabled="true"<% } %> <% if( data[i]['verified'] ) { %>checked="true"<% } %>/></td>
             </tr>
             <% } %>
           </tbody>
@@ -136,6 +142,7 @@
   <script src="/js/jquery.fixedtableheader-1-0-2.min.js"> </script>
   <script src="/js/table.js"></script>
   <script type="text/javascript">
+    var user = '<%= user %>';
     (function () {
       $('.tools-panel').not('.active').hide();
     })();

@@ -117,10 +117,22 @@ exports.get_user_comments = function(req, res) {
         'powiat': 1,
         'gmina': 1,
         'okr_ob': 1
+    };
+    var limit = req.param( 'limit', undefined );
+    if( !!limit ) {
+        limit = parseInt( limit, 10 );
     }
-    db_rows.find({ 'comments.user': user }, fields ).sort({ 'last_commented': -1 }).toArray( function ( err, data ) {
-        res.writeHead( '200', {'Content-Type': 'text/plain'} );
-        res.end( JSON.stringify( data ));
+
+    console.log( limit );
+    db_rows.find({ 'comments.user': user }).count( function ( err, total ) {
+        db_rows.find({ 'comments.user': user }, fields ).limit( limit ).sort({ 'last_commented': -1 }).toArray( function ( err, data ) {
+            var result = {
+                data: data,
+                total: total
+            };
+            res.writeHead( '200', {'Content-Type': 'text/plain'} );
+            res.end( JSON.stringify( result ));
+        });
     });
 };
 

@@ -54,7 +54,9 @@ tbody > tr:hover {
 }
 
 
-thead > tr, #fixedtableheader1 > tbody > tr  {
+thead > tr, 
+#fixedtableheader0 > tbody > tr,
+#fixedtableheader1 > tbody > tr {
     background: black;
     color: white;
 }

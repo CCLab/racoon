@@ -33,14 +33,17 @@
                 });
             };
 
-            var get_comments = function () {
+            var get_user_comments = function ( limit ) {
                 $.ajax({
                     url: '/get_user_comments/',
                     type: 'GET',
+                    data: { 'limit': limit },
                     dataType: 'json',
                     success: function ( received ) {
-                        var comments, data = received;
-                        var i, j, n = data.length > 5 ? 5 : data.length;
+                        var data = received.data;
+                        var total = received.total;
+                        var comments;
+                        var i, j, n = data.length;
                         var elem, html = [];
 
                         for( i = 0; i < n; ++i ) {
@@ -59,9 +62,16 @@
                             }
                             html.push( '</div>' );
                         }
+                        if( total > data.length ) {
+                            html.push( '<div id="tools-comments-all" class=button style="text-align: center; width: 100px">' );
+                            html.push( 'Pokaż wszystkie</div>' );
+                        }
 
                         elem = $( html.join('') );
                         $('#tools-comments').empty().append( elem );
+                        $('#tools-comments-all').click( function () {
+                            get_user_comments();
+                        });
                     }
                 });
             };
@@ -75,12 +85,18 @@
             $('#tools-popup').toggle();
             $('h2[data-name="tools-browser"]').trigger('click');
 
+            if( $('#tools-popup').is(':visible') ) {
+                $('.poviats').hide();
+                $('#fixedtableheader0').remove();
+            }
+            else {
+                $('table').fixedtableheader();
+            }
+
             if( $('#tools-browser').find('tr').length !== 0 ) {
-                if( $('#tools-popup').is(':visible') ) {
-                    $('.poviats').hide();
-                }
                 return;
             }
+
 
             $('.tab').click( function () {
                 var name = $(this).attr('data-name');
@@ -95,7 +111,7 @@
                         get_answered();
                         break;
                     case "tools-comments":
-                        get_comments();
+                        get_user_comments( 5 );
                         break;
                 }
 
@@ -162,6 +178,8 @@
                 }
             });
         });
+
+
         makezebra();
         $('table').fixedtableheader();
         set_clickable();
@@ -206,10 +224,10 @@
     }
 
     function set_clickable() {
-        $('tr').not('.blocked')
-               .not('.approved')
-               .find('.editable')
-               .dblclick( function( event ) {
+        var tr = $('tr').not('.blocked').not('.approved');
+
+        tr.find('.verify').attr('disabled', true);
+        tr.find('.editable').dblclick( function( event ) {
             addEditEvent( event, $(this) );
         });
     }
@@ -356,12 +374,18 @@
     }
 
 
-    $('input[type="checkbox"]').click( function () {
+    $('.verify').click( function () {
+        var tr = $(this).parent().parent();
+        tr.find('input[type="checkbox"]').attr('disabled', true);
+    });
+
+    $('.approve').click( function () {
         var tr = $(this).parent().parent();
         if( tr.hasClass('approved') ) {
             tr.removeClass('approved');
             tr.addClass('unapproved');
             $('.editable').unbind('dblclick');
+            tr.find('.verify').attr('disabled', true);
             set_clickable();
         }
         else {
