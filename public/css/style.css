@@ -144,6 +144,9 @@ input[type="submit"]:hover {
   border: 2px solid #5b5b5b;
   border-radius: 5px;
   padding: 10px;
+	-moz-box-shadow: 0px 0px 6px #888;
+	-webkit-box-shadow: 0px 0px 6px #888;
+	box-shadow: 0px 0px 6px #888;
 }
 
 #expert-table-popup {
@@ -190,4 +193,8 @@ input[type="submit"]:hover {
 
 .selected {
   background-color: #F3E58A !important;
+}
+
+.selected > td {
+  opacity: 1 !important;
 }

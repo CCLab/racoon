@@ -62,6 +62,7 @@ app.get ('/page/:page/search/', is_login, search.general );
 
 //////////////   D B   ///////////////
 app.post('/approved/', db.approved );
+app.post('/verified/', db.verified );
 app.post('/update/', db.update );
 app.get ('/get_comments/', db.get_comments );
 app.get ('/get_user_comments/', db.get_user_comments );

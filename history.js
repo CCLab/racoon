@@ -38,6 +38,19 @@ exports.save_approval = function ( user, id, approval ) {
     db_history.insert( revision );
 };
 
+exports.save_verification = function ( user, id ) {
+    var timestamp = new Date();
+    var revision = {
+        timestamp: timestamp,
+        user: user,
+        row: id,
+        verification: true
+    };
+
+    db_history.insert( revision );
+};
+
+
 exports.get_user_edits = function ( user ) {
     db_history.find({ 'user': user }).sort({'timestamp': 1}).toArray( function ( err, data ) {
         return data;

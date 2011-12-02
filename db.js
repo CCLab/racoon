@@ -18,7 +18,6 @@ exports.approved = function ( req, res ) {
     var set    = JSON.parse( req.body.set );
 
     db_users.findOne({ user: user }, update_user_account );
-    db_rows.findOne({'_id': new ObjectId( row_id ) }, mark_approved_object );
 
     history.save_approval( user, row_id, set );
 
@@ -48,8 +47,41 @@ exports.approved = function ( req, res ) {
         db_users.update({ 'user': user },
                         { '$set': {'rows': db_user['rows'] } });
     }
+};
 
-    function mark_approved_object( err, row ) {
+//////////  V E R I F I E D  //////////
+exports.verified = function ( req, res ) {
+    // check if the user is logged in
+    var user = req.session.user;
+    var row_id = req.body.id;
+
+    db_users.findOne({ user: user }, update_user_account );
+    db_rows.findOne({'_id': new ObjectId( row_id ) }, mark_verified_object );
+
+    history.save_verification( user, row_id );
+
+    res.writeHead( '200', {'Contetent-Type': 'plain/text'} );
+    res.end();
+
+    // callbacks
+    function update_user_account( err, db_user ) {
+        // update collection db
+        db_rows.update({ '_id': new ObjectId( row_id ) },
+                       { '$set': { 'verified': user } });
+        // push a new monument to user's list
+        try {
+            db_user['verified_rows'].push( row_id );
+        }
+        catch ( err ) {
+            db_user['verified_rows'] = [ row_id ];
+        }
+
+        // update the user's list in db
+        db_users.update({ 'user': user },
+                        { '$set': {'verified_rows': db_user['verified_rows'] } });
+    }
+
+    function mark_verified_object( err, row ) {
         // get clicked names
         var woj = row['wojewodztwo'];
         var pow = row['powiat'];
@@ -59,10 +91,10 @@ exports.approved = function ( req, res ) {
         // internal callback
         function update_metadata( err, woj_obj ) {
             // increment edited fileds
-            woj_obj['edited'] += set ? 1 : -1;
+            woj_obj['edited'] += 1;
             woj_obj['powiats'] = woj_obj['powiats'].map( function ( e ) {
                                                 if ( e['name'] === pow ) {
-                                                    e['edited'] += set ? 1 : -1;
+                                                    e['edited'] += 1;
                                                 }
                                                 return e;
                                             });
@@ -71,7 +103,6 @@ exports.approved = function ( req, res ) {
         }
     }
 };
-
 
 //////////  U P D A T E  //////////
 exports.update = function( req, res ) {

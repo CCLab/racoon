@@ -100,9 +100,13 @@
             if( $('#tools-popup').is(':visible') ) {
                 $('.poviats').hide();
                 $('#fixedtableheader0').remove();
+                $('#data-table').find('td').css('opacity', '0.5');
+                $('#data-table').find('input').hide();
             }
             else {
                 $('table').fixedtableheader();
+                $('#data-table').find('td').css('opacity', '1');
+                $('#data-table').find('input').show();
             }
 
             if( $('#tools-browser').find('tr').length !== 0 ) {
@@ -196,6 +200,7 @@
         makezebra();
         $('table').fixedtableheader();
         set_clickable();
+        block_verified();
 
         setInterval( function () {
             var ids = $.map( $('#data-table').find('tbody > tr'), function ( e ) {
@@ -242,6 +247,16 @@
         tr.find('.verify').attr('disabled', true);
         tr.find('.editable').dblclick( function( event ) {
             addEditEvent( event, $(this) );
+        });
+    }
+
+    function block_verified() {
+        var tr = $('.approved').not('.blocked');
+
+        tr.each( function () {
+            if( !!$(this).find('.verify').attr('checked') ) {
+                $(this).find('input').attr('disabled', true);
+            }
         });
     }
 
@@ -403,6 +418,8 @@
     $('.verify').click( function () {
         var tr = $(this).parent().parent();
         tr.find('input[type="checkbox"]').attr('disabled', true);
+
+        $.post( '/verified/', { id: tr.attr('id') } );
     });
 
     $('.approve').click( function () {
