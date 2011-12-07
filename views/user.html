@@ -10,7 +10,13 @@
 
 
 <hr />
-<!--  L E F T   P A N E L  -->
+
+<% if( expert ) { %>
+<h2>Odpowiedz na pytania</h2>
+<a href="/user/<%= user %>/panel/" class="button">przejdź do panelu eksperta &nbsp; <b>>></b></a>
+<div style="border-top: 1px solid #ccc; margin-top: 30px;"></div>
+<% } %>
+
 <% if( !!last_seen ) { %>
 <h2>Wróć do ostatnio edytowanych</h2>
 <a href="<%= last_seen %>" class="button">Wróć do ostatniego widoku &nbsp; <b>>></b></a>
@@ -116,14 +122,3 @@
   });
 
 </script>
-<!--
-<style type="text/css">
-  tr:hover {
-    background-color: #fafafa !important;
-  }
-  .button {
-    background-color: #e3e3e3;
-  }
-</style>
-
-<a href="/logout/" class="button" style="position: fixed; top: 5px; right: 2px">Logout</a> -->

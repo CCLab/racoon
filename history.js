@@ -1,6 +1,8 @@
 var _    = require('underscore');
 var cur  = require('./db_cur');
 
+var ObjectId = require('mongolian').ObjectId;
+
 exports.save_edit = function ( user, id, key, value ) {
     var timestamp = new Date();
     var fields = {};

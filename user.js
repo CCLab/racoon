@@ -126,8 +126,13 @@ exports.register = function ( req, res ) {
 //////////  P A G E  //////////
 exports.page = function ( req, res ) {
     var user = req.params.name;
+    var expert = user === 'trzewiczek' || user === 'ekspert';
 
     cur.users.findOne({ user: user }, function( err, db_user ) {
+    	if( !db_user ) {
+	   res.redirect('/');
+	   res.end();
+	}
         // turn _id hashes to ObjectIds
         var ObjectId = require('mongolian').ObjectId;
         var obj_list = db_user['rows'].map( function ( e ) {
@@ -162,7 +167,8 @@ exports.page = function ( req, res ) {
                                 comments_total: comments_list.length,
                                 comments_count: comments_count,
                                 comments_list: comments_list,
-                                meta: meta_data
+                                meta: meta_data,
+                                expert: expert
                             });
                         });
             });

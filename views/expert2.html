@@ -2,7 +2,17 @@
   Pytania do eksperta
 </h1>
 
+
+<% if( !!last_seen ) { %>
+<h2>Wróć do ostatnio edytowanych</h2>
+<a href="<%= last_seen %>" class="button"><b><<</b> &nbsp; Wróć do ostatniego widoku</a>
+<div style="border-top: 1px solid #ccc; margin-top: 30px;"></div>
+<% } else { %>
+<h2>Powrót do czyszczenia</h2>
+<a href="/user/<%= user %>" class="button"><b><<</b> &nbsp; Wróć do panelu wyboru danych</a>
+<div style="border-top: 1px solid #ccc; margin-top: 30px;"></div>
 <hr />
+<% } %>
 
 <% for( var i in data ) { %>
   <div id="<%= data[i]._id %>" class="question-holder">

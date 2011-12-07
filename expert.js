@@ -11,17 +11,20 @@ var ObjectId  = require('mongolian').ObjectId;
 //////////  P A G E  //////////
 exports.page = function ( req, res ) {
     cur.expert.find().sort({ 'timestamp': -1 }).toArray( function ( err, data ) {
-        data.forEach( function ( e ) {
-            var ts = e.timestamp;
-            var mins = ts.getMinutes()+"";
-            e.time = ts.getHours() + ":" + ( mins.length === 1 ? '0'+mins : mins );
-            e.date = ts.getDate() + "-" + ts.getMonth() + "-" + ts.getFullYear();
-        });
-        res.render( 'expert2.html', {
-            user: req.session.user,
-            title: "Panel eksperta",
-            count: data.length,
-            data: data
+        cur.users.findOne({ 'user': req.session.user }, function ( err, db_user ) {
+            data.forEach( function ( e ) {
+                var ts = e.timestamp;
+                var mins = ts.getMinutes()+"";
+                e.time = ts.getHours() + ":" + ( mins.length === 1 ? '0'+mins : mins );
+                e.date = ts.getDate() + "-" + ts.getMonth() + "-" + ts.getFullYear();
+            });
+            res.render( 'expert2.html', {
+                user: req.session.user,
+                title: "Panel eksperta",
+                count: data.length,
+                data: data,
+                last_seen: db_user.last_seen
+            });
         });
     });
 };

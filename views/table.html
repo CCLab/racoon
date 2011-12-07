@@ -110,6 +110,13 @@
                 <input type="text" name="where" placeholder="Gdzie?" />
                 <input type="submit" value="Szukaj" />
               </form>
+              <br />
+
+              <% if( expert ) { %>
+              <h2>Odpowiedz na pytania</h2>
+              <a href="/user/<%= user %>/panel/" class="button">przejdź do panelu eksperta &nbsp; <b>>></b></a>
+              <div style="border-top: 1px solid #ccc; margin-top: 30px;"></div>
+              <% } %>
             </div>
           </div>
           

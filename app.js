@@ -70,7 +70,7 @@ app.post('/check_new_comments/', db.check_new_comments );
 app.get ('/get_metadata/', db.get_metadata );
 
 //////////////   E X P E R T  ///////////////
-app.get ('/expert/', is_expert, expert.page );
+app.get ('/user/:user/panel/', is_expert, expert.page );
 app.post('/expert/answer/', is_expert, expert.answer );
 app.post('/expert/check_updates/', is_expert, expert.check_updates );
 app.post('/expert/get_rows/', is_expert, expert.get_rows );
@@ -88,16 +88,17 @@ function is_login( req, res, next ) {
 }
 
 function is_expert( req, res, next ) {
-    if( !req.session.user || req.session.user !== 'trzewiczek' ) {
-        res.redirect( '/' );
+    var user = req.session.user;
+    if( user === 'trzewiczek' || user === 'ekspert' ) {
+        next();
     }
     else {
-        next();
+        res.redirect( '/' );
     }
 }
 
-app.listen( '3030' );
-//app.listen( 10100, '91.227.40.36' );
+app.listen( 3030, '127.0.0.1' );
+//app.listen( 10300, '91.227.41.101' );
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 
 

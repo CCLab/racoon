@@ -1,10 +1,9 @@
-var url       = require('url');
-var _         = require('underscore');
+var url      = require('url');
+var _        = require('underscore');
+var ObjectId = require('mongolian').ObjectId;
 
-var history   = require('./history');
-
-var ObjectId  = require('mongolian').ObjectId;
-var cur  = require('./db_cur');
+var history  = require('./history');
+var cur      = require('./db_cur');
 
 //////////  A P P R O V E D  //////////
 exports.approved = function ( req, res ) {
@@ -28,20 +27,26 @@ exports.approved = function ( req, res ) {
             cur.data.update({ '_id': new ObjectId( row_id ) },
                            { '$set': { 'approved': user } });
             // push a new monument to user's list
-            db_user['rows'].push( row_id );
+            if( !!db_user ) {
+		    db_user['rows'].push( row_id );
+	    }
         }
         else {
             // update collection db
             cur.data.update({ '_id': new ObjectId( row_id ) },
                            { '$unset': { 'approved': 1 } });
             // remove monument from the user's list
-            db_user['rows'] = db_user['rows'].filter( function ( e ) {
+            if( !!db_user ) {
+		    db_user['rows'] = db_user['rows'].filter( function ( e ) {
                                                 return e !== row_id;
                                             });
+		}
         }
         // update the user's list in db
+	if( !!db_user ) {
         cur.users.update({ 'user': user },
                         { '$set': {'rows': db_user['rows'] } });
+			}
     }
 };
 

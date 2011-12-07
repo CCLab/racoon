@@ -86,7 +86,8 @@ exports.poviat = function ( req, res ) {
                             prev_page: prev_page,
                             next_page: next_page,
                             pagination: pagination,
-                            page: page
+                            page: page,
+                            expert: user === 'trzewiczek' || user === 'ekspert'
                         });
                     });
                 });
@@ -188,7 +189,8 @@ exports.general = function ( req, res ) {
                                 prev_page: prev_page,
                                 next_page: next_page,
                                 pagination: pagination,
-                                page: page
+                                page: page,
+                                expert: user === 'trzewiczek' || user === 'ekspert'
                             });
                         });
                     });
@@ -326,7 +328,8 @@ exports.general = function ( req, res ) {
                                     prev_page: prev_page,
                                     next_page: next_page,
                                     pagination: pagination,
-                                    page: page
+                                    page: page,
+                                    expert: user === 'trzewiczek' || user === 'ekspert'
                                 });
                             });
                         });
